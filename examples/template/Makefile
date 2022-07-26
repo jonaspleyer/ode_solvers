@@ -14,4 +14,4 @@ copy_binary: compile_release
 	cp -f ../../target/release/lib$(libname).so ./$(libname).so
 
 run_python_script: copy_binary
-	python3 main.py
+	python3 benchmark.py
