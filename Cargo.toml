@@ -12,3 +12,8 @@ license = "Mozilla 2.0"
 edition = "2021"
 
 [dependencies]
+
+
+[dev-dependencies]
+ndarray = { version="0.15" }
+nalgebra = { version="0.31" }
