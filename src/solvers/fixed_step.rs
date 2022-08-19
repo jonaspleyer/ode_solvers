@@ -5,26 +5,50 @@
 
 use crate::concepts::steppers::*;
 
-use std::ops::{Add,Mul};
+use std::ops::{Add,Mul,AddAssign};
 
 pub struct Euler {}
 
 impl Stepper for Euler {
-    fn do_step<V, T, P, Err>(
+    fn do_step_iter<'a, 'b, I, J, F: 'b, P, Err>
+    (
         &self,
-        func: &dyn Fn(&V, &T, &P) -> Result<V, Err>,
-        input: &V,
-        t: &T,
-        dt: &T,
-        p: &P
-    ) -> Result<V, Err>
+        func: &dyn Fn(&I, &mut I, &F, &P) -> Result<(), Err>,
+        y:  &'a mut I,
+        dy: &'a mut I,
+        t:  &'b F,
+        dt: &'b F,
+        p:  &P
+    ) -> Result<(), Err>
     where
-        V: Add<Output=V> + Copy + Mul<f64, Output=V>,
-        T: Add<Output=T> + Copy + Mul<f64, Output=T> + Mul<V, Output=V>,
-        f64: Mul<V, Output=V> + Mul<T, Output=T>,
+        &'a mut I: IntoIterator<Item=&'b mut F, IntoIter=J>,
+        F: Copy + Add<Output=F> + Add<F,Output=F> + AddAssign + Mul<F,Output=F> + From<f32>,
+        J: Iterator<Item=&'b mut F>
     {
-        let r = func(input, t, p)?;
-        return Ok(*input + *dt * r)
+        func(y, dy, t, p)?;
+        for (yi, dyi) in y.into_iter().zip(dy.into_iter()) {
+            *yi += *dt * *dyi;
+        }
+        Ok(())
+    }
+
+    fn do_step_add<'a, 'b, I, F: 'b, P, Err>
+    (
+        &self,
+        func: &dyn Fn(&I, &mut I, &F, &P) -> Result<(), Err>,
+        y:  &'a mut I,
+        dy: &'a mut I,
+        t:  &'b F,
+        dt: &'b F,
+        p:  &P
+    ) -> Result<(), Err>
+    where
+        I: AddAssign + Copy + Mul<F,Output=I> + Mul<f64,Output=I>,
+        F: Copy + Add<Output=F> + Add<F,Output=F> + AddAssign + Mul<F,Output=F> + Mul<I,Output=I> + From<f32>
+    {
+        func(y, dy, t, p)?;
+        *y += *dt * *dy;
+        Ok(())
     }
 }
 
@@ -39,23 +63,48 @@ pub struct RK4 {}
 
 // Implement the pytonic version of the RK4 stepper
 impl Stepper for RK4 {
-    fn do_step<V, T, P, Err>(
+    fn do_step_iter<'a, 'b, I, J, F: 'b, P, Err>
+    (
         &self,
-        func: &dyn Fn(&V, &T, &P) -> Result<V, Err>,
-        input: &V,
-        t: &T,
-        dt: &T,
-        p: &P
-    ) -> Result<V, Err>
+        func: &dyn Fn(&I, &mut I, &F, &P) -> Result<(), Err>,
+        y:  &'a mut I,
+        dy: &'a mut I,
+        t:  &'b F,
+        dt: &'b F,
+        p:  &P
+    ) -> Result<(), Err>
     where
-        V: Add<Output=V> + Copy + Mul<f64, Output=V>,
-        T: Add<Output=T> + Copy + Mul<f64, Output=T> + Mul<V, Output=V>,
-        f64: Mul<V, Output=V> + Mul<T, Output=T>,
+        &'a mut I: IntoIterator<Item=&'b mut F, IntoIter=J>,
+        F: Copy + Add<Output=F> + Add<F,Output=F> + AddAssign + Mul<F,Output=F> + From<f32>,
+        J: Iterator<Item=&'b mut F>
     {
-        let k1 = *dt * func(input, t, p)?;
-        let k2 = *dt * func(&(*input + 0.5 * k1), &(*t + 0.5 * *dt), p)?;
-        let k3 = *dt * func(&(*input + 0.5 * k2), &(*t + 0.5 * *dt), p)?;
-        let k4 = *dt * func(&(*input + k3), &(*t + *dt), p)?;
-        return Ok(*input + (1.0/6.0) * (k1 + 2.0 * k2 + 2.0 * k3 + k4));
+        func(y, dy, t, p)?;
+        for (yi, dyi) in y.into_iter().zip(dy.into_iter()) {
+            // TODO
+            // This is not a Runge-Kutta solver yet!
+            *yi += *dt * *dyi;
+        }
+        Ok(())
+    }
+
+    fn do_step_add<'a, 'b, I, F: 'b, P, Err>
+    (
+        &self,
+        func: &dyn Fn(&I, &mut I, &F, &P) -> Result<(), Err>,
+        y:  &'a mut I,
+        dy: &'a mut I,
+        t:  &'b F,
+        dt: &'b F,
+        p:  &P
+    ) -> Result<(), Err>
+    where
+        I: AddAssign + Copy + Mul<F,Output=I> + Mul<f64,Output=I>,
+        F: Copy + Add<Output=F> + Add<F,Output=F> + AddAssign + Mul<F,Output=F> + Mul<I,Output=I> + From<f32>
+    {
+        func(y, dy, t, p)?;
+        // TODO
+        // This is not a Runge-kutta solver yet!
+        *y += *dt * *dy;
+        Ok(())
     }
 }
