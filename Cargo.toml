@@ -11,10 +11,6 @@ version = "0.1.0"
 license = "Mozilla 2.0"
 edition = "2021"
 
-[lib]
-name = "ode_solvers"
-crate-type = ["cdylib"]
-
 [dependencies]
 # cpython = { version="0.5", features=["extension-module"] }
 pyo3 = { version="0.16" }
