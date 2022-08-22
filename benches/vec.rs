@@ -25,9 +25,9 @@ mod tests {
     use ode_solvers::solvers::fixed_step::{Euler};
     use ode_solvers::concepts::steppers::Stepper;
 
-    fn bench_vec_size(n: u16) {
-        let mut y:  Vec<f64> = (1..n).map(f64::from).collect();
-        let mut dy: Vec<f64> = (1..n).map(f64::from).collect();
+    fn bench_vec(size: u32, iter: u32) {
+        let mut y:  Vec<f64> = (1..size).map(f64::from).collect();
+        let mut dy: Vec<f64> = (1..size).map(f64::from).collect();
     
         let p = 2.0;
     
@@ -36,66 +36,69 @@ mod tests {
     
         let eu = Euler {};
     
-        for _ in 1..100 {
+        for _ in 1..iter {
             eu.do_step_iter(&rhs_vec, &mut y, &mut dy, &t, &dt, &p).unwrap();
             t += dt;
         }
     }
 
     #[bench]
-    fn vec_size_1(b: &mut Bencher) {
-        b.iter(|| bench_vec_size(1));
+    #[allow(non_snake_case)]
+    fn vec_size______1_iter____100(b: &mut Bencher) {
+        b.iter(|| bench_vec(1,100));
     }
 
     #[bench]
-    fn vec_size_10(b: &mut Bencher) {
-        b.iter(|| bench_vec_size(10));
+    #[allow(non_snake_case)]
+    fn vec_size_____10_iter____100(b: &mut Bencher) {
+        b.iter(|| bench_vec(10,100));
     }
 
     #[bench]
-    fn vec_size_100(b: &mut Bencher) {
-        b.iter(|| bench_vec_size(100));
+    #[allow(non_snake_case)]
+    fn vec_size____100_iter____100(b: &mut Bencher) {
+        b.iter(|| bench_vec(100,100));
     }
 
     #[bench]
-    fn vec_size_1000(b: &mut Bencher) {
-        b.iter(|| bench_vec_size(1000));
-    }
-
-    fn bench_vec_iter(n: u16) {
-        let mut y:  Vec<f64> = (1..10).map(f64::from).collect();
-        let mut dy: Vec<f64> = (1..10).map(f64::from).collect();
-    
-        let p = 2.0;
-    
-        let dt = 0.1;
-        let mut t = 0.0;
-    
-        let eu = Euler {};
-    
-        for _ in 1..n {
-            eu.do_step_iter(&rhs_vec, &mut y, &mut dy, &t, &dt, &p).unwrap();
-            t += dt;
-        }
+    #[allow(non_snake_case)]
+    fn vec_size___1000_iter____100(b: &mut Bencher) {
+        b.iter(|| bench_vec(1000,100));
     }
 
     #[bench]
-    fn vec_iter_10(b: &mut Bencher) {
-        b.iter(|| bench_vec_iter(10));
+    #[allow(non_snake_case)]
+    fn vec_size__10000_iter____100(b: &mut Bencher) {
+        b.iter(|| bench_vec(10000,100));
     }
 
     #[bench]
-    fn vec_iter_100(b: &mut Bencher) {
-        b.iter(|| bench_vec_iter(100));
+    #[allow(non_snake_case)]
+    fn vec_size_100000_iter____100(b: &mut Bencher) {
+        b.iter(|| bench_vec(100000,100));
     }
 
     #[bench]
-    fn vec_iter_1000(b: &mut Bencher) {
-        b.iter(|| bench_vec_iter(1000));
+    #[allow(non_snake_case)]
+    fn vec_size_____10_iter_____10(b: &mut Bencher) {
+        b.iter(|| bench_vec(10,10));
     }
 
     #[bench]
-    fn vec_iter_10000(b: &mut Bencher) {
-        b.iter(|| bench_vec_iter(10000));
+    #[allow(non_snake_case)]
+    fn vec_size_____10_iter___1000(b: &mut Bencher) {
+        b.iter(|| bench_vec(10,1000));
+    }
+
+    #[bench]
+    #[allow(non_snake_case)]
+    fn vec_size_____10_iter__10000(b: &mut Bencher) {
+        b.iter(|| bench_vec(10,10000));
+    }
+
+    #[bench]
+    #[allow(non_snake_case)]
+    fn vec_size_____10_iter_100000(b: &mut Bencher) {
+        b.iter(|| bench_vec(10,100000));
     }
 }
