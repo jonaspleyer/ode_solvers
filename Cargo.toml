@@ -17,3 +17,4 @@ edition = "2021"
 [dev-dependencies]
 ndarray = { version="0.15" }
 nalgebra = { version="0.31" }
+num = { version="0.4" }
