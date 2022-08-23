@@ -1,4 +1,10 @@
 # ode_integrate
+[![License: MPL 2.0](https://img.shields.io/badge/License-MPL_2.0-brightgreen.svg)](https://opensource.org/licenses/MPL-2.0)
+[![Test Status](https://github.com/jonaspleyer/ode_integrate/actions/workflows/test.yml/badge.svg?event=push)](https://github.com/jonaspleyer/ode_integrate/actions)
+[![Crate](https://img.shields.io/crates/v/ode_integrate.svg)](https://crates.io/crates/ode_integrate)
+[![API](https://docs.rs/ode_integrate/badge.svg)](https://docs.rs/ode_integrate)
+[![Minimum rustc version](https://img.shields.io/badge/rustc-1.36+-lightgray.svg)](https://github.com/jonaspleyer/ode_integrate#rust-version-requirements)
+
 This package solves standard Ordinary Differential Equations (ODEs) in Rust.
 
 ## Documentation
