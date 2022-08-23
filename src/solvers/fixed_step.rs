@@ -5,7 +5,7 @@
 
 use crate::concepts::steppers::*;
 
-use std::ops::{Add,Mul,AddAssign};
+use std::ops::{Add,Sub,Mul,AddAssign,SubAssign,Div,Neg};
 
 pub struct Euler {}
 
@@ -21,9 +21,10 @@ impl Stepper for Euler {
         p:  &P
     ) -> Result<(), Err>
     where
-        &'a mut I: IntoIterator<Item=&'b mut F, IntoIter=J>,
-        F: Copy + Add<Output=F> + Add<F,Output=F> + AddAssign + Mul<F,Output=F> + From<f32>,
-        J: Iterator<Item=&'b mut F>
+        &'a mut I: IntoIterator<Item=&'b mut F, IntoIter=J> + std::panic::RefUnwindSafe,
+        F: Add<F,Output=F> + Sub<F,Output=F> + Mul<F,Output=F> + Div<F,Output=F> + AddAssign + SubAssign + Neg + Copy + From<i8> + std::panic::RefUnwindSafe,
+        J: Iterator<Item=&'b mut F>,
+        P: std::panic::RefUnwindSafe
     {
         func(y, dy, t, p)?;
         for (yi, dyi) in y.into_iter().zip(dy.into_iter()) {
@@ -43,8 +44,9 @@ impl Stepper for Euler {
         p:  &P
     ) -> Result<(), Err>
     where
-        I: AddAssign + Copy + Mul<F,Output=I> + Mul<f64,Output=I>,
-        F: Copy + Add<Output=F> + Add<F,Output=F> + AddAssign + Mul<F,Output=F> + Mul<I,Output=I> + From<f32>
+        I: AddAssign + Copy + Mul<F,Output=I> + Mul<F,Output=I> + std::panic::RefUnwindSafe,
+        F: Add<F,Output=F> + Sub<F,Output=F> + Mul<F,Output=F> + Div<F,Output=F> + AddAssign + SubAssign + Neg + Copy + From<i8> + std::panic::RefUnwindSafe + Mul<I,Output=I>,
+        P: std::panic::RefUnwindSafe
     {
         func(y, dy, t, p)?;
         *y += *dt * *dy;
@@ -74,9 +76,10 @@ impl Stepper for RK4 {
         p:  &P
     ) -> Result<(), Err>
     where
-        &'a mut I: IntoIterator<Item=&'b mut F, IntoIter=J>,
-        F: Copy + Add<Output=F> + Add<F,Output=F> + AddAssign + Mul<F,Output=F> + From<f32>,
-        J: Iterator<Item=&'b mut F>
+        &'a mut I: IntoIterator<Item=&'b mut F, IntoIter=J> + std::panic::RefUnwindSafe,
+        F: Add<F,Output=F> + Sub<F,Output=F> + Mul<F,Output=F> + Div<F,Output=F> + AddAssign + SubAssign + Neg + Copy + From<i8> + std::panic::RefUnwindSafe,
+        J: Iterator<Item=&'b mut F> + std::panic::RefUnwindSafe,
+        P: std::panic::RefUnwindSafe
     {
         func(y, dy, t, p)?;
         for (yi, dyi) in y.into_iter().zip(dy.into_iter()) {
@@ -98,8 +101,9 @@ impl Stepper for RK4 {
         p:  &P
     ) -> Result<(), Err>
     where
-        I: AddAssign + Copy + Mul<F,Output=I> + Mul<f64,Output=I>,
-        F: Copy + Add<Output=F> + Add<F,Output=F> + AddAssign + Mul<F,Output=F> + Mul<I,Output=I> + From<f32>
+        I: AddAssign + Copy + Mul<F,Output=I> + Mul<F,Output=I> + std::panic::RefUnwindSafe,
+        F: Add<F,Output=F> + Sub<F,Output=F> + Mul<F,Output=F> + Div<F,Output=F> + AddAssign + SubAssign + Neg<Output=F> + Copy + From<i8> + std::panic::RefUnwindSafe + Mul<I,Output=I>,
+        P: std::panic::RefUnwindSafe
     {
         func(y, dy, t, p)?;
         // TODO

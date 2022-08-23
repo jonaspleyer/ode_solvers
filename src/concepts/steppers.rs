@@ -3,7 +3,24 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-use std::ops::{Add,Mul,AddAssign};
+use std::ops::{Add,Sub,Mul,AddAssign,SubAssign,Div,Neg};
+
+// Hopefully we can in the future use trait aliases: https://github.com/rust-lang/rust/issues/41517
+/*
+pub trait Field =
+    // Mathematical operations
+    Add<Self,Output=Self> +
+    Sub<Self,Output=Self> +
+    Mul<Self,Output=Self> +
+    Div<Self,Output=Self> +
+    AddAssign +
+    SubAssign +
+    Neg +
+    // Other operations necessary
+    Copy +
+    Sized
+*/
+
 
 pub trait Stepper {
     fn do_step_iter<'a, 'b, I, J, F: 'b, P, Err>
@@ -17,9 +34,10 @@ pub trait Stepper {
         p:  &P
     ) -> Result<(), Err>
     where
-        &'a mut I: IntoIterator<Item=&'b mut F, IntoIter=J>,
-        F: Copy + Add<Output=F> + Add<F,Output=F> + AddAssign + Mul<F,Output=F> + From<f32>,
-        J: Iterator<Item=&'b mut F>;
+        &'a mut I: IntoIterator<Item=&'b mut F, IntoIter=J> + std::panic::RefUnwindSafe,
+        F: Add<F,Output=F> + Sub<F,Output=F> + Mul<F,Output=F> + Div<F,Output=F> + AddAssign + SubAssign + Neg<Output=F> + Copy + From<i8> + std::panic::RefUnwindSafe,
+        J: Iterator<Item=&'b mut F> + std::panic::RefUnwindSafe,
+        P: std::panic::RefUnwindSafe;
     
     
     fn do_step_add<'a, 'b, I, F: 'b, P, Err>
@@ -33,6 +51,7 @@ pub trait Stepper {
         p:  &P
     ) -> Result<(), Err>
     where
-        I: AddAssign + Copy + Mul<F,Output=I> + Mul<f64,Output=I>,
-        F: Copy + Add<Output=F> + Add<F,Output=F> + AddAssign + Mul<F,Output=F> + Mul<I,Output=I> + From<f32>;
+        I: AddAssign + Copy + Mul<F,Output=I> + Mul<F,Output=I> + std::panic::RefUnwindSafe,
+        F: Add<F,Output=F> + Sub<F,Output=F> + Mul<F,Output=F> + Div<F,Output=F> + AddAssign + SubAssign + Neg<Output=F> + Copy + From<i8> + std::panic::RefUnwindSafe + Mul<I,Output=I>,
+        P: std::panic::RefUnwindSafe;
 }
