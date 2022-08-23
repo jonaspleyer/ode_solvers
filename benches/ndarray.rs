@@ -7,7 +7,7 @@
 
 extern crate test;
 
-use ode_solvers::concepts::errors::CalcError;
+use ode_integrate::concepts::errors::CalcError;
 
 use ndarray::{Array1};
 
@@ -24,8 +24,8 @@ pub fn rhs_ndarray(y: &Array1<f64>, dy: &mut Array1<f64>, _t: &f64, p: &f64) -> 
 mod tests {
     use super::*;
     use test::Bencher;
-    use ode_solvers::solvers::fixed_step::{Euler};
-    use ode_solvers::concepts::steppers::Stepper;
+    use ode_integrate::solvers::fixed_step::{Euler};
+    use ode_integrate::concepts::steppers::Stepper;
 
     fn bench_vec(size: u32, iter: u32) {
         let mut y: Array1<f64>  = (1..size).map(f64::from).collect();

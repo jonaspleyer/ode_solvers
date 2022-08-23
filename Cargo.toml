@@ -5,14 +5,14 @@
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [package]
-name = "ode_solvers"
-description="Collection of templated ODE Solvers applicable in many scenarios."
+name = "ode_integrate"
+description="Collection of numerical ODE Solvers written in generics and thus applicable in many scenarios."
 authors = ["Jonas Pleyer <jonas.pleyer@fdm.uni-freiburg.de>"]
 version = "0.0.1"
 license = "Mozilla 2.0"
 edition = "2021"
 readme = "README.md"
-repository = "https://github.com/jonaspleyer/ode_solvers"
+repository = "https://github.com/jonaspleyer/ode_integrate"
 keywords=["ODE", "Ordinary", "Differential", "Equation", "science"]
 categories=["science", "mathematics"]
 

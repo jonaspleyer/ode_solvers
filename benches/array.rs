@@ -7,7 +7,7 @@
 
 extern crate test;
 
-use ode_solvers::concepts::errors::CalcError;
+use ode_integrate::concepts::errors::CalcError;
 
 
 #[macro_export]
@@ -48,8 +48,8 @@ macro_rules! bench_array {
 mod tests {
     use super::*;
     use test::Bencher;
-    use ode_solvers::solvers::fixed_step::{Euler};
-    use ode_solvers::concepts::steppers::Stepper;
+    use ode_integrate::solvers::fixed_step::{Euler};
+    use ode_integrate::concepts::steppers::Stepper;
 
     #[bench]
     #[allow(non_snake_case)]

@@ -3,9 +3,9 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-use ode_solvers::concepts::errors::CalcError;
-use ode_solvers::solvers::fixed_step::{Euler};
-use ode_solvers::concepts::steppers::Stepper;
+use ode_integrate::concepts::errors::CalcError;
+use ode_integrate::solvers::fixed_step::{Euler};
+use ode_integrate::concepts::steppers::Stepper;
 
 use ndarray::{array,Array1};
 

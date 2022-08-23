@@ -5,9 +5,9 @@
 
 use nalgebra::{Vector3,Rotation3};
 
-use ode_solvers::concepts::errors::CalcError;
-use ode_solvers::solvers::fixed_step::{Euler};
-use ode_solvers::concepts::steppers::Stepper;
+use ode_integrate::concepts::errors::CalcError;
+use ode_integrate::solvers::fixed_step::{Euler};
+use ode_integrate::concepts::steppers::Stepper;
 
 
 fn rhs(y: &Vector3<f64>, dy: &mut Vector3<f64>, _t: &f64, p: &Rotation3<f64>) -> Result<(), CalcError> {
