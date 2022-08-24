@@ -114,7 +114,7 @@ impl Stepper for RK4 {
 
 
 #[cfg(test)]
-mod tests {
+mod tests_euler {
     use super::*;
     use super::super::super::concepts::errors::CalcError;
 
@@ -140,7 +140,7 @@ mod tests {
 
 
     #[test]
-    fn test_euler_do_step_iter_f64() {
+    fn do_step_iter_f64() {
         let eu = Euler {};
         let mut x = vec!(2.0, 3.0, 4.0, 5.0);
         let mut dx = vec!(0.0, 0.0, 0.0, 0.0);
@@ -151,7 +151,7 @@ mod tests {
     }
 
     #[test]
-    fn test_euler_do_step_iter_f32() {
+    fn do_step_iter_f32() {
         let eu = Euler {};
         let mut x = vec!(2.0f32, 3.0f32, 4.0f32, 5.0f32);
         let mut dx = vec!(0.0f32, 0.0f32, 0.0f32, 0.0f32);
@@ -162,7 +162,7 @@ mod tests {
     }
 
     #[test]
-    fn test_euler_do_step_add_f64() {
+    fn do_step_add_f64() {
         let eu = Euler {};
         let mut x = 2.0;
         let mut dx = 0.0;
@@ -173,7 +173,7 @@ mod tests {
     }
 
     #[test]
-    fn test_euler_do_step_add_f32() {
+    fn do_step_add_f32() {
         let eu = Euler {};
         let mut x = 2.0f32;
         let mut dx = 0.0f32;
@@ -192,7 +192,8 @@ mod tests {
     }
 
     #[test]
-    fn test_euler_catch_calc_panic_add_f64() {
+    #[should_panic]
+    fn no_catch_calc_panic_add_f64() {
         let eu = Euler {};
         let mut x = 1.2943859;
         let mut dx = 0.0;
@@ -206,7 +207,8 @@ mod tests {
     }
 
     #[test]
-    fn test_euler_catch_calc_panic_add_f32() {
+    #[should_panic]
+    fn no_catch_calc_panic_add_f32() {
         let eu = Euler {};
         let mut x = 1.2943859f32;
         let mut dx = 0.0f32;
@@ -230,7 +232,8 @@ mod tests {
     }
 
     #[test]
-    fn test_euler_catch_calc_panic_iter_f32() {
+    #[should_panic]
+    fn no_catch_calc_panic_iter_f32() {
         let eu = Euler {};
         let mut x = vec!(1.2943859f32, 239489.2394879f32, 11.987908234f32);
         let mut dx = vec!(0.0f32, 0.0f32, 0.0f32);
@@ -244,7 +247,8 @@ mod tests {
     }
 
     #[test]
-    fn test_euler_catch_calc_panic_iter_f64() {
+    #[should_panic]
+    fn no_catch_calc_panic_iter_f64() {
         let eu = Euler {};
         let mut x = vec!(1.2943859, 239489.2394879, 11.987908234);
         let mut dx = vec!(0.0, 0.0, 0.0);
