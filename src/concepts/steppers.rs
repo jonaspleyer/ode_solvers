@@ -34,9 +34,9 @@ pub trait Stepper {
         p:  &P
     ) -> Result<(), Err>
     where
-        &'a mut I: IntoIterator<Item=&'b mut F, IntoIter=J> + std::panic::RefUnwindSafe,
-        F: Add<F,Output=F> + Sub<F,Output=F> + Mul<F,Output=F> + Div<F,Output=F> + AddAssign + SubAssign + Neg<Output=F> + Copy + From<i8> + std::panic::RefUnwindSafe,
-        J: Iterator<Item=&'b mut F> + std::panic::RefUnwindSafe,
+        &'a mut I: IntoIterator<Item=&'b mut F, IntoIter=J>,
+        F: Add<F,Output=F> + Sub<F,Output=F> + Mul<F,Output=F> + Div<F,Output=F> + AddAssign + SubAssign + Neg<Output=F> + Copy + From<i8>,
+        J: Iterator<Item=&'b mut F>,
         P: std::panic::RefUnwindSafe;
     
     
@@ -51,7 +51,7 @@ pub trait Stepper {
         p:  &P
     ) -> Result<(), Err>
     where
-        I: AddAssign + Copy + Mul<F,Output=I> + Mul<F,Output=I> + std::panic::RefUnwindSafe,
-        F: Add<F,Output=F> + Sub<F,Output=F> + Mul<F,Output=F> + Div<F,Output=F> + AddAssign + SubAssign + Neg<Output=F> + Copy + From<i8> + std::panic::RefUnwindSafe + Mul<I,Output=I>,
+        I: AddAssign + Copy + Mul<F,Output=I> + Mul<F,Output=I>,
+        F: Add<F,Output=F> + Sub<F,Output=F> + Mul<F,Output=F> + Div<F,Output=F> + AddAssign + SubAssign + Neg<Output=F> + Copy + From<i8> + Mul<I,Output=I>,
         P: std::panic::RefUnwindSafe;
 }

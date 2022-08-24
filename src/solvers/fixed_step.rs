@@ -21,10 +21,9 @@ impl Stepper for Euler {
         p:  &P
     ) -> Result<(), Err>
     where
-        &'a mut I: IntoIterator<Item=&'b mut F, IntoIter=J> + std::panic::RefUnwindSafe,
-        F: Add<F,Output=F> + Sub<F,Output=F> + Mul<F,Output=F> + Div<F,Output=F> + AddAssign + SubAssign + Neg + Copy + From<i8> + std::panic::RefUnwindSafe,
-        J: Iterator<Item=&'b mut F>,
-        P: std::panic::RefUnwindSafe
+        &'a mut I: IntoIterator<Item=&'b mut F, IntoIter=J>,
+        F: Add<F,Output=F> + Sub<F,Output=F> + Mul<F,Output=F> + Div<F,Output=F> + AddAssign + SubAssign + Neg + Copy + From<i8>,
+        J: Iterator<Item=&'b mut F>
     {
         func(y, dy, t, p)?;
         for (yi, dyi) in y.into_iter().zip(dy.into_iter()) {
@@ -44,8 +43,8 @@ impl Stepper for Euler {
         p:  &P
     ) -> Result<(), Err>
     where
-        I: AddAssign + Copy + Mul<F,Output=I> + Mul<F,Output=I> + std::panic::RefUnwindSafe,
-        F: Add<F,Output=F> + Sub<F,Output=F> + Mul<F,Output=F> + Div<F,Output=F> + AddAssign + SubAssign + Neg + Copy + From<i8> + std::panic::RefUnwindSafe + Mul<I,Output=I>,
+        I: AddAssign + Copy + Mul<F,Output=I> + Mul<F,Output=I>,
+        F: Add<F,Output=F> + Sub<F,Output=F> + Mul<F,Output=F> + Div<F,Output=F> + AddAssign + SubAssign + Neg + Copy + From<i8> + Mul<I,Output=I>,
         P: std::panic::RefUnwindSafe
     {
         func(y, dy, t, p)?;
@@ -76,9 +75,9 @@ impl Stepper for RK4 {
         p:  &P
     ) -> Result<(), Err>
     where
-        &'a mut I: IntoIterator<Item=&'b mut F, IntoIter=J> + std::panic::RefUnwindSafe,
-        F: Add<F,Output=F> + Sub<F,Output=F> + Mul<F,Output=F> + Div<F,Output=F> + AddAssign + SubAssign + Neg + Copy + From<i8> + std::panic::RefUnwindSafe,
-        J: Iterator<Item=&'b mut F> + std::panic::RefUnwindSafe,
+        &'a mut I: IntoIterator<Item=&'b mut F, IntoIter=J>,
+        F: Add<F,Output=F> + Sub<F,Output=F> + Mul<F,Output=F> + Div<F,Output=F> + AddAssign + SubAssign + Neg + Copy + From<i8>,
+        J: Iterator<Item=&'b mut F>,
         P: std::panic::RefUnwindSafe
     {
         func(y, dy, t, p)?;
@@ -101,8 +100,8 @@ impl Stepper for RK4 {
         p:  &P
     ) -> Result<(), Err>
     where
-        I: AddAssign + Copy + Mul<F,Output=I> + Mul<F,Output=I> + std::panic::RefUnwindSafe,
-        F: Add<F,Output=F> + Sub<F,Output=F> + Mul<F,Output=F> + Div<F,Output=F> + AddAssign + SubAssign + Neg<Output=F> + Copy + From<i8> + std::panic::RefUnwindSafe + Mul<I,Output=I>,
+        I: AddAssign + Copy + Mul<F,Output=I> + Mul<F,Output=I>,
+        F: Add<F,Output=F> + Sub<F,Output=F> + Mul<F,Output=F> + Div<F,Output=F> + AddAssign + SubAssign + Neg<Output=F> + Copy + From<i8> + Mul<I,Output=I>,
         P: std::panic::RefUnwindSafe
     {
         func(y, dy, t, p)?;
@@ -121,7 +120,7 @@ mod tests {
 
     fn rhs_vec<F>(x: &Vec<F>, dx: &mut Vec<F>, t: &F, p: &F) -> Result<(), CalcError>
     where
-        F: Copy + Add<Output=F> + Add<F,Output=F> + AddAssign + Mul<F,Output=F> + Div<F,Output=F> + Neg<Output=F> + From<i8> + std::panic::RefUnwindSafe,
+        F: Copy + Add<Output=F> + Add<F,Output=F> + AddAssign + Mul<F,Output=F> + Div<F,Output=F> + Neg<Output=F> + From<i8>,
     {
         for (xi, dxi) in x.into_iter().zip(dx.into_iter()) {
             *dxi = - *p * *xi * *t;
@@ -132,8 +131,8 @@ mod tests {
 
     fn rhs_add<I, F>(x: &I, dx: &mut I, t: &F, p: &F) -> Result<(), CalcError>
     where
-        I: AddAssign + Copy + Mul<F,Output=I> + Mul<F,Output=I> + std::ops::Neg<Output=I> + std::panic::RefUnwindSafe,
-        F: Add<F,Output=F> + Sub<F,Output=F> + Mul<F,Output=F> + Div<F,Output=F> + AddAssign + SubAssign + Neg<Output=F> + Copy + From<i8> + std::panic::RefUnwindSafe + Mul<I,Output=I>,
+        I: AddAssign + Copy + Mul<F,Output=I> + Mul<F,Output=I> + std::ops::Neg<Output=I>,
+        F: Add<F,Output=F> + Sub<F,Output=F> + Mul<F,Output=F> + Div<F,Output=F> + AddAssign + SubAssign + Neg<Output=F> + Copy + From<i8> + Mul<I,Output=I>,
     {
         *dx = - *p * *x * *t;
         Ok(())
@@ -186,8 +185,8 @@ mod tests {
 
     fn rhs_bad_add<I, F>(_x: &I, _dx: &mut I, _t: &F, _p: &F) -> Result<(), CalcError>
     where
-        I: AddAssign + Copy + Mul<F,Output=I> + Mul<F,Output=I> + std::ops::Neg<Output=I> + std::panic::RefUnwindSafe,
-        F: Add<F,Output=F> + Sub<F,Output=F> + Mul<F,Output=F> + Div<F,Output=F> + AddAssign + SubAssign + Neg + Copy + From<i8> + std::panic::RefUnwindSafe + Mul<I,Output=I>,
+        I: AddAssign + Copy + Mul<F,Output=I> + Mul<F,Output=I> + std::ops::Neg<Output=I>,
+        F: Add<F,Output=F> + Sub<F,Output=F> + Mul<F,Output=F> + Div<F,Output=F> + AddAssign + SubAssign + Neg + Copy + From<i8> + Mul<I,Output=I>,
     {
         panic!("Purposefully panic to test Solver!");
     }
@@ -222,7 +221,7 @@ mod tests {
 
     fn rhs_bad_iter<F>(x: &Vec<F>, dx: &mut Vec<F>, _t: &F, p: &F) -> Result<(), CalcError>
     where
-        F: Copy + Add<Output=F> + Add<F,Output=F> + AddAssign + Mul<F,Output=F> + std::ops::Neg<Output=F> + Div<F,Output=F> + From<i8> + std::panic::RefUnwindSafe,
+        F: Copy + Add<Output=F> + Add<F,Output=F> + AddAssign + Mul<F,Output=F> + std::ops::Neg<Output=F> + Div<F,Output=F> + From<i8>,
     {   
         let l  =  x.len();
         let dl = dx.len();
