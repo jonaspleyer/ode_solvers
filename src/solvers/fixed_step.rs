@@ -10,7 +10,7 @@ use std::ops::{Add,Sub,Mul,AddAssign,SubAssign,Div,Neg};
 pub struct Euler {}
 
 impl Stepper for Euler {
-    fn do_step_iter<'a, 'b, I, J, F: 'b, P, Err>
+    fn do_step_iter<'a, 'b, I, F: 'a, P, Err>
     (
         &self,
         func: &dyn Fn(&I, &mut I, &F, &P) -> Result<(), Err>,
@@ -21,9 +21,9 @@ impl Stepper for Euler {
         p:  &P
     ) -> Result<(), Err>
     where
-        &'a mut I: IntoIterator<Item=&'b mut F, IntoIter=J>,
-        F: Add<F,Output=F> + Sub<F,Output=F> + Mul<F,Output=F> + Div<F,Output=F> + AddAssign + SubAssign + Neg + Copy + From<i8>,
-        J: Iterator<Item=&'b mut F>
+        for<'m>&'m mut I: IntoIterator<Item=&'m mut F>,
+        for<'m>&'m I: IntoIterator<Item=&'m F>,
+        F: Add<F,Output=F> + Sub<F,Output=F> + Mul<F,Output=F> + Div<F,Output=F> + AddAssign + SubAssign + Neg<Output=F> + Copy + From<i8>,
     {
         func(y, dy, t, p)?;
         for (yi, dyi) in y.into_iter().zip(dy.into_iter()) {
@@ -43,12 +43,11 @@ impl Stepper for Euler {
         p:  &P
     ) -> Result<(), Err>
     where
-        I: AddAssign + Copy + Mul<F,Output=I> + Mul<F,Output=I>,
+        I: AddAssign + Clone + Mul<F,Output=I> + Mul<F,Output=I>,
         F: Add<F,Output=F> + Sub<F,Output=F> + Mul<F,Output=F> + Div<F,Output=F> + AddAssign + SubAssign + Neg + Copy + From<i8> + Mul<I,Output=I>,
-        P: std::panic::RefUnwindSafe
     {
         func(y, dy, t, p)?;
-        *y += *dt * *dy;
+        *y += *dt * dy.clone();
         Ok(())
     }
 }
@@ -64,7 +63,7 @@ pub struct RK4 {}
 
 // Implement the pytonic version of the RK4 stepper
 impl Stepper for RK4 {
-    fn do_step_iter<'a, 'b, I, J, F: 'b, P, Err>
+    fn do_step_iter<'a, 'b, I, F: 'a, P, Err>
     (
         &self,
         func: &dyn Fn(&I, &mut I, &F, &P) -> Result<(), Err>,
@@ -75,10 +74,9 @@ impl Stepper for RK4 {
         p:  &P
     ) -> Result<(), Err>
     where
-        &'a mut I: IntoIterator<Item=&'b mut F, IntoIter=J>,
-        F: Add<F,Output=F> + Sub<F,Output=F> + Mul<F,Output=F> + Div<F,Output=F> + AddAssign + SubAssign + Neg + Copy + From<i8>,
-        J: Iterator<Item=&'b mut F>,
-        P: std::panic::RefUnwindSafe
+        for<'m>&'m mut I: IntoIterator<Item=&'m mut F>,
+        for<'m>&'m I: IntoIterator<Item=&'m F>,
+        F: Add<F,Output=F> + Sub<F,Output=F> + Mul<F,Output=F> + Div<F,Output=F> + AddAssign + SubAssign + Neg<Output=F> + Copy + From<i8>,
     {
         func(y, dy, t, p)?;
         for (yi, dyi) in y.into_iter().zip(dy.into_iter()) {
@@ -100,14 +98,13 @@ impl Stepper for RK4 {
         p:  &P
     ) -> Result<(), Err>
     where
-        I: AddAssign + Copy + Mul<F,Output=I> + Mul<F,Output=I>,
+        I: AddAssign + Clone + Mul<F,Output=I> + Mul<F,Output=I>,
         F: Add<F,Output=F> + Sub<F,Output=F> + Mul<F,Output=F> + Div<F,Output=F> + AddAssign + SubAssign + Neg<Output=F> + Copy + From<i8> + Mul<I,Output=I>,
-        P: std::panic::RefUnwindSafe
     {
         func(y, dy, t, p)?;
         // TODO
         // This is not a Runge-kutta solver yet!
-        *y += *dt * *dy;
+        *y += *dt * dy.clone();
         Ok(())
     }
 }
@@ -131,10 +128,10 @@ mod tests_euler {
 
     fn rhs_add<I, F>(x: &I, dx: &mut I, t: &F, p: &F) -> Result<(), CalcError>
     where
-        I: AddAssign + Copy + Mul<F,Output=I> + Mul<F,Output=I> + std::ops::Neg<Output=I>,
+        I: AddAssign + Clone + Mul<F,Output=I> + Mul<F,Output=I> + std::ops::Neg<Output=I>,
         F: Add<F,Output=F> + Sub<F,Output=F> + Mul<F,Output=F> + Div<F,Output=F> + AddAssign + SubAssign + Neg<Output=F> + Copy + From<i8> + Mul<I,Output=I>,
     {
-        *dx = - *p * *x * *t;
+        *dx = - *p * x.clone() * *t;
         Ok(())
     }
 
@@ -185,7 +182,7 @@ mod tests_euler {
 
     fn rhs_bad_add<I, F>(_x: &I, _dx: &mut I, _t: &F, _p: &F) -> Result<(), CalcError>
     where
-        I: AddAssign + Copy + Mul<F,Output=I> + Mul<F,Output=I> + std::ops::Neg<Output=I>,
+        I: AddAssign + Clone + Mul<F,Output=I> + Mul<F,Output=I> + std::ops::Neg<Output=I>,
         F: Add<F,Output=F> + Sub<F,Output=F> + Mul<F,Output=F> + Div<F,Output=F> + AddAssign + SubAssign + Neg + Copy + From<i8> + Mul<I,Output=I>,
     {
         panic!("Purposefully panic to test Solver!");

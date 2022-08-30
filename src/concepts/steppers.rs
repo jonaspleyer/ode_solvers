@@ -23,7 +23,7 @@ pub trait Field =
 
 
 pub trait Stepper {
-    fn do_step_iter<'a, 'b, I, J, F: 'b, P, Err>
+    fn do_step_iter<'a, 'b, I, F: 'a, P, Err>
     (
         &self,
         func: &dyn Fn(&I, &mut I, &F, &P) -> Result<(), Err>,
@@ -34,9 +34,9 @@ pub trait Stepper {
         p:  &P
     ) -> Result<(), Err>
     where
-        &'a mut I: IntoIterator<Item=&'b mut F, IntoIter=J>,
+        for<'m>&'m mut I: IntoIterator<Item=&'m mut F>,
+        for<'m>&'m I: IntoIterator<Item=&'m F>,
         F: Add<F,Output=F> + Sub<F,Output=F> + Mul<F,Output=F> + Div<F,Output=F> + AddAssign + SubAssign + Neg<Output=F> + Copy + From<i8>,
-        J: Iterator<Item=&'b mut F>,
         P: std::panic::RefUnwindSafe;
     
     
@@ -51,7 +51,7 @@ pub trait Stepper {
         p:  &P
     ) -> Result<(), Err>
     where
-        I: AddAssign + Copy + Mul<F,Output=I> + Mul<F,Output=I>,
+        I: AddAssign + Clone + Mul<F,Output=I> + Mul<F,Output=I>,
         F: Add<F,Output=F> + Sub<F,Output=F> + Mul<F,Output=F> + Div<F,Output=F> + AddAssign + SubAssign + Neg<Output=F> + Copy + From<i8> + Mul<I,Output=I>,
         P: std::panic::RefUnwindSafe;
 }
