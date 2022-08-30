@@ -16,10 +16,11 @@ repository = "https://github.com/jonaspleyer/ode_integrate"
 keywords=["ODE", "Ordinary", "Differential", "Equation", "science"]
 categories=["science", "mathematics"]
 
+
 [dependencies]
 
 
 [dev-dependencies]
 ndarray = { version="0.15" }
 nalgebra = { version="0.31" }
-num = { version="0.4" }
+arrayfire = { version="3.8" }
