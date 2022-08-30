@@ -16,6 +16,11 @@ jobs:
       - name: Checkout sources
         uses: actions/checkout@v2
 
+      - name: Install arrayfire
+        run: apt-key adv --fetch-key https://repo.arrayfire.com/GPG-PUB-KEY-ARRAYFIRE-2020.PUB
+        run: echo "deb [arch=amd64] https://repo.arrayfire.com/debian all main" | tee /etc/apt/sources.list.d/arrayfire.list
+        run: sudo apt install -y gnupg2 ca-certificates apt-utils software-properties-common arrayfire
+
       - name: Install stable toolchain
         uses: actions-rs/toolchain@v1
         with:
