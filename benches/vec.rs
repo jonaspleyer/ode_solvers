@@ -19,7 +19,7 @@ pub fn rhs_vec(y: &Vec<f64>, dy: &mut Vec<f64>, _t: &f64, p: &f64) -> Result<(),
 
 
 #[cfg(test)]
-mod tests {
+mod bench_euler {
     use super::*;
     use test::Bencher;
     use ode_integrate::solvers::fixed_step::{Euler};

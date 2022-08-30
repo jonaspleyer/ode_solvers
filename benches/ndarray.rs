@@ -21,7 +21,7 @@ pub fn rhs_ndarray(y: &Array1<f64>, dy: &mut Array1<f64>, _t: &f64, p: &f64) -> 
 
 
 #[cfg(test)]
-mod tests {
+mod bench_euler {
     use super::*;
     use test::Bencher;
     use ode_integrate::solvers::fixed_step::{Euler};

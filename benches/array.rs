@@ -45,7 +45,7 @@ macro_rules! bench_array {
 
 
 #[cfg(test)]
-mod tests {
+mod bench_euler {
     use super::*;
     use test::Bencher;
     use ode_integrate::solvers::fixed_step::{Euler};
