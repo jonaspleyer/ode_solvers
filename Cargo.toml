@@ -16,6 +16,9 @@ repository = "https://github.com/jonaspleyer/ode_integrate"
 keywords=["ODE", "Ordinary", "Differential", "Equation", "science"]
 categories=["science", "mathematics"]
 
+[package.metadata.docs.rs]
+rustdoc-args = [ "--html-in-header", "./doc/docs-header.html" ]
+
 
 [dependencies]
 
