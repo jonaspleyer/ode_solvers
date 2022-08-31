@@ -52,16 +52,24 @@ impl Stepper for Euler {
     }
 }
 
-/// Runge-Kutta 4th order stepper
+/// # Runge-Kutta 4th order stepper
 /// The Runge-Kutta 4th order solving scheme works with the following equations
-/// y1 = y0 + (⅙) (k1 + 2k2 + 2k3 + k4)
-/// k1 = hf(x0, y0)
-/// k2 = hf[x0 + (½)h, y0 + (½)k1]
-/// k3 = hf[x0 + (½)h, y0 + (½)k2]
-/// k4 = hf(x0 + h, y0 + k3)
+/// First we compute the assisting variables
+/// \begin{equation}
+///     \begin{alignedat}{7}
+///         k_1 &= &&hf(t_0 &,& y_0&&)\\\\
+///         k_2 &= &&hf(t_0 + \tfrac{1}{2} &h ,& y_0 + \tfrac{1}{2} &k_1&)\\\\
+///         k_3 &= &&hf(t_0 + \tfrac{1}{2} &h ,& y_0 + \tfrac{1}{2} &k_2&)\\\\
+///         k_4 &= &&hf(t_0 + &h,& y_0 + &k_3&)
+///     \end{alignedat}
+/// \end{equation}
+/// and finally combine them with
+/// \begin{equation}
+///     y_1 = y_0 + \tfrac{1}{6} (k_1 + 2 k_2 + 2 k_3 + k_4).
+/// \end{equation}
 pub struct RK4 {}
 
-// Implement the pytonic version of the RK4 stepper
+// Implement the RK4 stepper
 impl Stepper for RK4 {
     fn do_step_iter<'a, 'b, I, F: 'a, P, Err>
     (
