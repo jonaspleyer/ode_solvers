@@ -43,7 +43,7 @@ impl Stepper for Euler {
         p:  &P
     ) -> Result<(), Err>
     where
-        I: AddAssign + Clone + Mul<F,Output=I> + Mul<F,Output=I>,
+        I: Add<Output=I> + AddAssign + Clone + Mul<F,Output=I> + Mul<F,Output=I>,
         F: Add<F,Output=F> + Sub<F,Output=F> + Mul<F,Output=F> + Div<F,Output=F> + AddAssign + SubAssign + Neg + Copy + From<i8> + Mul<I,Output=I>,
     {
         func(y, dy, t, p)?;
@@ -106,7 +106,7 @@ impl Stepper for RK4 {
         p:  &P
     ) -> Result<(), Err>
     where
-        I: AddAssign + Clone + Mul<F,Output=I> + Mul<F,Output=I>,
+        I: Add<Output=I> + AddAssign + Clone + Mul<F,Output=I> + Mul<F,Output=I>,
         F: Add<F,Output=F> + Sub<F,Output=F> + Mul<F,Output=F> + Div<F,Output=F> + AddAssign + SubAssign + Neg<Output=F> + Copy + From<i8> + Mul<I,Output=I>,
     {
         func(y, dy, t, p)?;
@@ -136,7 +136,7 @@ mod tests_euler {
 
     fn rhs_add<I, F>(x: &I, dx: &mut I, t: &F, p: &F) -> Result<(), CalcError>
     where
-        I: AddAssign + Clone + Mul<F,Output=I> + Mul<F,Output=I> + std::ops::Neg<Output=I>,
+        I: Add<Output=I> + AddAssign + Clone + Mul<F,Output=I> + Mul<F,Output=I> + std::ops::Neg<Output=I>,
         F: Add<F,Output=F> + Sub<F,Output=F> + Mul<F,Output=F> + Div<F,Output=F> + AddAssign + SubAssign + Neg<Output=F> + Copy + From<i8> + Mul<I,Output=I>,
     {
         *dx = - *p * x.clone() * *t;
@@ -190,7 +190,7 @@ mod tests_euler {
 
     fn rhs_bad_add<I, F>(_x: &I, _dx: &mut I, _t: &F, _p: &F) -> Result<(), CalcError>
     where
-        I: AddAssign + Clone + Mul<F,Output=I> + Mul<F,Output=I> + std::ops::Neg<Output=I>,
+        I: Add<Output=I> + AddAssign + Clone + Mul<F,Output=I> + Mul<F,Output=I> + std::ops::Neg<Output=I>,
         F: Add<F,Output=F> + Sub<F,Output=F> + Mul<F,Output=F> + Div<F,Output=F> + AddAssign + SubAssign + Neg + Copy + From<i8> + Mul<I,Output=I>,
     {
         panic!("Purposefully panic to test Solver!");

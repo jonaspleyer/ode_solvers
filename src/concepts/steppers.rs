@@ -51,7 +51,7 @@ pub trait Stepper {
         p:  &P
     ) -> Result<(), Err>
     where
-        I: AddAssign + Clone + Mul<F,Output=I> + Mul<F,Output=I>,
+        I: Add<Output=I> + AddAssign + Clone + Mul<F,Output=I> + Mul<F,Output=I>,
         F: Add<F,Output=F> + Sub<F,Output=F> + Mul<F,Output=F> + Div<F,Output=F> + AddAssign + SubAssign + Neg<Output=F> + Copy + From<i8> + Mul<I,Output=I>,
         P: std::panic::RefUnwindSafe;
 }
