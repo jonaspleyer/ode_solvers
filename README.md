@@ -4,6 +4,7 @@
 [![Crate](https://img.shields.io/crates/v/ode_integrate.svg)](https://crates.io/crates/ode_integrate)
 [![API](https://docs.rs/ode_integrate/badge.svg)](https://docs.rs/ode_integrate)
 [![Minimum rustc version](https://img.shields.io/badge/rustc-1.36+-lightgray.svg)](https://github.com/jonaspleyer/ode_integrate#rust-version-requirements)
+[![dependency status](https://deps.rs/crate/ode_integrate/0.0.1/status.svg)](https://deps.rs/crate/ode_integrate/0.0.1)
 
 This package solves standard Ordinary Differential Equations (ODEs) in Rust.
 
