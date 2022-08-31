@@ -109,10 +109,27 @@ impl Stepper for RK4 {
         I: Add<Output=I> + AddAssign + Clone + Mul<F,Output=I> + Mul<F,Output=I>,
         F: Add<F,Output=F> + Sub<F,Output=F> + Mul<F,Output=F> + Div<F,Output=F> + AddAssign + SubAssign + Neg<Output=F> + Copy + From<i8> + Mul<I,Output=I>,
     {
+        let mut ym: I;
+        let k1: I;
+        let k2: I;
+        let k3: I;
+        let k4: I;
+        let half = F::from(1)/F::from(2);
+
         func(y, dy, t, p)?;
         // TODO
-        // This is not a Runge-kutta solver yet!
-        *y += *dt * dy.clone();
+        // Find more optimal version of this code
+        k1 = *dt * dy.clone();
+        ym = y.clone() + half * k1.clone();
+        func(&ym, dy, &(*t + half * *dt), p)?;
+        k2 = *dt * dy.clone();
+        ym = y.clone() + half * k2.clone();
+        func(&ym, dy, &(*t + half * *dt), p)?;
+        k3 = *dt * dy.clone();
+        ym = y.clone() + k3.clone();
+        func(&ym, dy, &(*t + *dt), p)?;
+        k4 = *dt * dy.clone();
+        *y += half / F::from(3) * (k1 + F::from(2) * k2 + F::from(2) * k3 + k4);
         Ok(())
     }
 }
