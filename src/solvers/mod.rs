@@ -4,3 +4,5 @@
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 pub mod fixed_step;
+#[cfg(test)]
+pub mod fixed_step_unit_tests;
