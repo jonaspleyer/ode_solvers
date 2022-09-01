@@ -5,6 +5,8 @@
 
 use std::ops::{Add,Sub,Mul,AddAssign,SubAssign,Div,Neg};
 
+
+/// # Floating point type
 /// This type allows one to arbitrary floating point types and even in theory exact decimal fractions to numerically integrate the ODE
 /// Since some algorithms require the use of constants, we need to be able to map at least from natural numbers to our FloatLikeType
 /// The type i8 was chosen since implementations for f64 and f32 were already present.
@@ -25,9 +27,10 @@ where
     T: Add<Self,Output=Self> + Sub<Self,Output=Self> + Mul<Self,Output=Self> + Div<Self,Output=Self> + AddAssign + SubAssign + Neg<Output=Self> + Copy + From<i8>
 {}
 
-
+/// # Abstract vector type
 /// This type is ment to represent a mathematical type similar to a fixed-size vector in a vector space
 /// For a definition look at eg. <https://lyryx.com/first-course-linear-algebra/>
+// Hopefully we can in the future use trait aliases: https://github.com/rust-lang/rust/issues/41517
 pub trait MathVecLikeType<F>:
     Add<Output=Self> +
     AddAssign +
@@ -41,9 +44,18 @@ where
     F: FloatLikeType
 {}
 
-// Hopefully we can in the future use trait aliases: https://github.com/rust-lang/rust/issues/41517
 
 
+/// # Steppers
+/// This trait allows increasing the current value of an ODE to the next time step via differnt methods.
+/// If the inspected object is iterable, we can update the contents by iterating over individual elements.
+/// This algorithm intrinsically assumes that by continuous iteration of the type I, order of variables remains unchanged.
+/// While the update step is done this way, the function $f(y, t, p)$ can still be specified arbitrarily.
+// TODO fix this inlining error with KaTeX
+/// 
+/// The second method is for an additive type I. Here, we do not iterate over individual elements but assume that the type can be easily
+// TODO is this copy or clone?
+/// copied/cloned and thus the ODE integrated this way.
 pub trait Stepper<I, F, P, Err> {
     fn do_step_iter
     (
