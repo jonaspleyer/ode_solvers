@@ -44,15 +44,14 @@ where
 // Hopefully we can in the future use trait aliases: https://github.com/rust-lang/rust/issues/41517
 
 
-pub trait Stepper {
-    fn do_step_iter<'a, 'b, I, F: 'a, P, Err>
+pub trait Stepper<I, F, P, Err> {
+    fn do_step_iter
     (
-        &self,
+        &mut self,
         func: &dyn Fn(&I, &mut I, &F, &P) -> Result<(), Err>,
-        y:  &'a mut I,
-        dy: &'a mut I,
-        t:  &'b F,
-        dt: &'b F,
+        y:  &mut I,
+        t:  &F,
+        dt: &F,
         p:  &P
     ) -> Result<(), Err>
     where
@@ -61,14 +60,13 @@ pub trait Stepper {
         F: FloatLikeType;
     
     
-    fn do_step_add<'a, 'b, I, F: 'b, P, Err>
+    fn do_step_add
     (
-        &self,
+        &mut self,
         func: &dyn Fn(&I, &mut I, &F, &P) -> Result<(), Err>,
-        y:  &'a mut I,
-        dy: &'a mut I,
-        t:  &'b F,
-        dt: &'b F,
+        y:  &mut I,
+        t:  &F,
+        dt: &F,
         p:  &P
     ) -> Result<(), Err>
     where
