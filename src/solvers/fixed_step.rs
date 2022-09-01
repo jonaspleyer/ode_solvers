@@ -7,6 +7,12 @@ use crate::concepts::steppers::*;
 
 use std::ops::{Mul};
 
+/// # Euler stepper
+/// This stepper is meant as an example and is one that should generally not be used.
+/// Solving of the ODE is done via
+/// \begin{equation}
+///     y_1 = y_0 + dt f(y, t, p)
+/// \end{equation}
 pub struct Euler {}
 
 impl Stepper for Euler {
