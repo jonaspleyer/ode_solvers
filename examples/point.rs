@@ -65,8 +65,7 @@ impl Mul<Point> for f64 {
 
 
 fn main() {
-    let mut y  = Point{x: 1.0, y: 2.0};
-    let mut dy = Point{x: 1.0, y: 2.0};
+    let mut y = Point{x: 1.0, y: 2.0};
 
     let p = [2.0, 0.2];
 
@@ -75,10 +74,10 @@ fn main() {
     let dt = 0.05;
     let mut t  = t0;
 
-    let eu = Euler {};
+    let mut eu = Euler::from((&y, &t, &dt, &p));
 
     while t<tend {
-        eu.do_step_add(&rhs, &mut y, &mut dy, &t, &dt, &p).unwrap();
+        eu.do_step_add(&rhs, &mut y, &t, &dt, &p).unwrap();
         t += dt;
         println!("t={:6.4} p=[{:6.4} {:6.4}]", t, y.x, y.y);
     }

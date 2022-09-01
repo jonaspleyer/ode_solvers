@@ -18,7 +18,6 @@ fn rhs(y: &Vector3<f64>, dy: &mut Vector3<f64>, _t: &f64, p: &Rotation3<f64>) ->
 
 fn main() {
     let mut y  = Vector3::from([1.0 ,2.0, 3.0]);
-    let mut dy = Vector3::from([0.0, 0.0, 0.0]);
 
     let axis   = Vector3::x_axis();
     let angle  = 0.1;
@@ -28,11 +27,11 @@ fn main() {
     let mut t  = 0.0;
     let tmax   = 2.0;
 
-    let eu     = Euler{};
+    let mut eu = Euler::from((&y, &t, &dt, &p));
 
     while t<tmax {
         // do_step(&rhs, &mut y, &mut dy, &t, &dt, &p);
-        eu.do_step_iter(&rhs, &mut y, &mut dy, &t, &dt, &p).unwrap();
+        eu.do_step_iter(&rhs, &mut y, &t, &dt, &p).unwrap();
         println!("{:6.4} y=[{:6.4} {:6.4} {:6.4}]", t, y[0], y[1], y[2]);
         t += dt;
     }

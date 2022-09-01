@@ -18,22 +18,32 @@ fn rhs_arrayfire(y: &Array<f64>, dy: &mut Array<f64>, _t: &f64, p: &(f64, Array<
 
 
 fn main() {
-    let values: [f64; 12] = [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0];
-    let mut y = Array::new(&values, Dim4::new(&[3, 2, 2, 1]));
-    let mut dy = y.clone();
+    const SIZE1: usize = 3;
+    const SIZE2: usize = 3;
+    const SIZE3: usize = 2;
+    const SIZE4: usize = 2;
+    const SIZE: usize = SIZE1 * SIZE2 * SIZE3 * SIZE4;
+    
+    let mut values: [f64; SIZE] = [0.0; SIZE];
+    let target: [f64; SIZE] = [100.0; SIZE];
+    for i in 1..SIZE {
+        values[i] = i as f64;
+    }
+    let mut y = Array::new(&values, Dim4::new(&[SIZE1 as u64, SIZE2 as u64, SIZE3 as u64, SIZE4 as u64]));
 
-    let p = (2.0, y.clone());
+    let p1 = Array::new(&target, Dim4::new(&[SIZE1 as u64, SIZE2 as u64, SIZE3 as u64, SIZE4 as u64]));
+    let p = (1.4893, p1);
 
     let dt = 0.1;
     let mut t = 0.0;
     let tmax = 500.0;
 
-    let eu = Euler {};
+    let mut eu = Euler::from((&y, &t, &dt, &p));
 
     print(&y);
     while t<tmax {
         
-        eu.do_step_add(&rhs_arrayfire, &mut y, &mut dy, &t, &dt, &p).unwrap();
+        eu.do_step_add(&rhs_arrayfire, &mut y, &t, &dt, &p).unwrap();
         t += dt;
     }
     print(&y);
