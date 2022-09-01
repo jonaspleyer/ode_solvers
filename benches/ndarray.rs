@@ -29,17 +29,16 @@ mod bench_euler {
 
     fn bench_vec(size: u32, iter: u32) {
         let mut y: Array1<f64>  = (1..size).map(f64::from).collect();
-        let mut dy: Array1<f64> = (1..size).map(f64::from).collect();
     
         let p       = 2.0;
     
         let dt      = 0.1;
         let mut t   = 0.0;
     
-        let eu      = Euler {};
+        let mut eu      = Euler::from((&y, &t, &dt, &p));
     
         for _ in 1..iter {
-            eu.do_step_iter(&rhs_ndarray, &mut y, &mut dy, &t, &dt, &p).unwrap();
+            eu.do_step_iter(&rhs_ndarray, &mut y, &t, &dt, &p).unwrap();
             t += dt;
         }
     }
