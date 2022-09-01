@@ -35,46 +35,42 @@ mod tests_euler {
 
     #[test]
     fn do_step_iter_f64() {
-        let eu = Euler {};
         let mut x = vec!(2.0, 3.0, 4.0, 5.0);
-        let mut dx = vec!(0.0, 0.0, 0.0, 0.0);
         let dt = 0.1;
         let t = 2.0;
         let p = 4.0;
-        eu.do_step_iter(&rhs_vec, &mut x, &mut dx, &t, &dt, &p).unwrap();
+        let mut eu = Euler::from((&x, &t, &dt, &p));
+        eu.do_step_iter(&rhs_vec, &mut x, &t, &dt, &p).unwrap();
     }
 
     #[test]
     fn do_step_iter_f32() {
-        let eu = Euler {};
         let mut x = vec!(2.0f32, 3.0f32, 4.0f32, 5.0f32);
-        let mut dx = vec!(0.0f32, 0.0f32, 0.0f32, 0.0f32);
         let dt = 0.1f32;
         let t = 2.0f32;
         let p = 4.0f32;
-        eu.do_step_iter(&rhs_vec, &mut x, &mut dx, &t, &dt, &p).unwrap();
+        let mut eu = Euler::from((&x, &t, &dt, &p));
+        eu.do_step_iter(&rhs_vec, &mut x, &t, &dt, &p).unwrap();
     }
 
     #[test]
     fn do_step_add_f64() {
-        let eu = Euler {};
         let mut x = 2.0;
-        let mut dx = 0.0;
         let dt = 0.1;
         let t = 2.0;
         let p = 4.0;
-        eu.do_step_add(&rhs_add, &mut x, &mut dx, &t, &dt, &p).unwrap();
+        let mut eu = Euler::from((&x, &t, &dt, &p));
+        eu.do_step_add(&rhs_add, &mut x, &t, &dt, &p).unwrap();
     }
 
     #[test]
     fn do_step_add_f32() {
-        let eu = Euler {};
         let mut x = 2.0f32;
-        let mut dx = 0.0f32;
         let dt = 0.1f32;
         let t = 2.0f32;
         let p = 4.0f32;
-        eu.do_step_add(&rhs_add, &mut x, &mut dx, &t, &dt, &p).unwrap();
+        let mut eu = Euler::from((&x, &t, &dt, &p));
+        eu.do_step_add(&rhs_add, &mut x, &t, &dt, &p).unwrap();
     }
 
     fn rhs_bad_add<I, F>(_x: &I, _dx: &mut I, _t: &F, _p: &F) -> Result<(), CalcError>
@@ -88,13 +84,12 @@ mod tests_euler {
     #[test]
     #[should_panic]
     fn no_catch_calc_panic_add_f64() {
-        let eu = Euler {};
         let mut x = 1.2943859;
-        let mut dx = 0.0;
         let dt = 0.323987;
         let t = 5.23423987;
         let p = 345.394857;
-        match eu.do_step_add(&rhs_bad_add, &mut x, &mut dx, &t, &dt, &p) {
+        let mut eu = Euler::from((&x, &t, &dt, &p));
+        match eu.do_step_add(&rhs_bad_add, &mut x, &t, &dt, &p) {
             Ok(()) => panic!("We did not catch the error"),
             Err(CalcError) => (),
         };
@@ -103,13 +98,12 @@ mod tests_euler {
     #[test]
     #[should_panic]
     fn no_catch_calc_panic_add_f32() {
-        let eu = Euler {};
         let mut x = 1.2943859f32;
-        let mut dx = 0.0f32;
         let dt = 0.323987f32;
         let t = 5.23423987f32;
         let p = 345.394857f32;
-        match eu.do_step_add(&rhs_bad_add, &mut x, &mut dx, &t, &dt, &p) {
+        let mut eu = Euler::from((&x, &t, &dt, &p));
+        match eu.do_step_add(&rhs_bad_add, &mut x, &t, &dt, &p) {
             Ok(()) => panic!("We did not catch the error"),
             Err(CalcError) => (),
         };
@@ -128,13 +122,12 @@ mod tests_euler {
     #[test]
     #[should_panic]
     fn no_catch_calc_panic_iter_f32() {
-        let eu = Euler {};
         let mut x = vec!(1.2943859f32, 239489.2394879f32, 11.987908234f32);
-        let mut dx = vec!(0.0f32, 0.0f32, 0.0f32);
         let dt = 0.323987f32;
         let t = 5.23423987f32;
         let p = 345.394857f32;
-        match eu.do_step_iter(&rhs_bad_iter, &mut x, &mut dx, &t, &dt, &p) {
+        let mut eu = Euler::from((&x, &t, &dt, &p));
+        match eu.do_step_iter(&rhs_bad_iter, &mut x, &t, &dt, &p) {
             Ok(()) => panic!("We did not catch the error"),
             Err(CalcError) => (),
         };
@@ -143,13 +136,12 @@ mod tests_euler {
     #[test]
     #[should_panic]
     fn no_catch_calc_panic_iter_f64() {
-        let eu = Euler {};
         let mut x = vec!(1.2943859, 239489.2394879, 11.987908234);
-        let mut dx = vec!(0.0, 0.0, 0.0);
         let dt = 0.323987;
         let t = 5.23423987;
         let p = 345.394857;
-        match eu.do_step_iter(&rhs_bad_iter, &mut x, &mut dx, &t, &dt, &p) {
+        let mut eu = Euler::from((&x, &t, &dt, &p));
+        match eu.do_step_iter(&rhs_bad_iter, &mut x, &t, &dt, &p) {
             Ok(()) => panic!("We did not catch the error"),
             Err(CalcError) => (),
         };
@@ -184,46 +176,42 @@ mod tests_rk4 {
 
     #[test]
     fn do_step_iter_f64() {
-        let rk4 = RK4 {};
         let mut x = vec!(2.0, 3.0, 4.0, 5.0);
-        let mut dx = vec!(0.0, 0.0, 0.0, 0.0);
         let dt = 0.1;
         let t = 2.0;
         let p = 4.0;
-        rk4.do_step_iter(&rhs_vec, &mut x, &mut dx, &t, &dt, &p).unwrap();
+        let mut rk4 = RK4::from((&x, &t, &dt, &p));
+        rk4.do_step_iter(&rhs_vec, &mut x, &t, &dt, &p).unwrap();
     }
 
     #[test]
     fn do_step_iter_f32() {
-        let rk4 = RK4 {};
         let mut x = vec!(2.0f32, 3.0f32, 4.0f32, 5.0f32);
-        let mut dx = vec!(0.0f32, 0.0f32, 0.0f32, 0.0f32);
         let dt = 0.1f32;
         let t = 2.0f32;
         let p = 4.0f32;
-        rk4.do_step_iter(&rhs_vec, &mut x, &mut dx, &t, &dt, &p).unwrap();
+        let mut rk4 = RK4::from((&x, &t, &dt, &p));
+        rk4.do_step_iter(&rhs_vec, &mut x, &t, &dt, &p).unwrap();
     }
 
     #[test]
     fn do_step_add_f64() {
-        let rk4 = RK4 {};
         let mut x = 2.0;
-        let mut dx = 0.0;
         let dt = 0.1;
         let t = 2.0;
         let p = 4.0;
-        rk4.do_step_add(&rhs_add, &mut x, &mut dx, &t, &dt, &p).unwrap();
+        let mut rk4 = RK4::from((&x, &t, &dt, &p));
+        rk4.do_step_add(&rhs_add, &mut x, &t, &dt, &p).unwrap();
     }
 
     #[test]
     fn do_step_add_f32() {
-        let rk4 = RK4 {};
         let mut x = 2.0f32;
-        let mut dx = 0.0f32;
         let dt = 0.1f32;
         let t = 2.0f32;
         let p = 4.0f32;
-        rk4.do_step_add(&rhs_add, &mut x, &mut dx, &t, &dt, &p).unwrap();
+        let mut rk4 = RK4::from((&x, &t, &dt, &p));
+        rk4.do_step_add(&rhs_add, &mut x, &t, &dt, &p).unwrap();
     }
 
     fn rhs_bad_add<I, F>(_x: &I, _dx: &mut I, _t: &F, _p: &F) -> Result<(), CalcError>
@@ -237,13 +225,12 @@ mod tests_rk4 {
     #[test]
     #[should_panic]
     fn no_catch_calc_panic_add_f64() {
-        let rk4 = RK4 {};
         let mut x = 1.2943859;
-        let mut dx = 0.0;
         let dt = 0.323987;
         let t = 5.23423987;
         let p = 345.394857;
-        match rk4.do_step_add(&rhs_bad_add, &mut x, &mut dx, &t, &dt, &p) {
+        let mut rk4 = RK4::from((&x, &t, &dt, &p));
+        match rk4.do_step_add(&rhs_bad_add, &mut x, &t, &dt, &p) {
             Ok(()) => panic!("We did not catch the error"),
             Err(CalcError) => (),
         };
@@ -252,13 +239,12 @@ mod tests_rk4 {
     #[test]
     #[should_panic]
     fn no_catch_calc_panic_add_f32() {
-        let rk4 = RK4 {};
         let mut x = 1.2943859f32;
-        let mut dx = 0.0f32;
         let dt = 0.323987f32;
         let t = 5.23423987f32;
         let p = 345.394857f32;
-        match rk4.do_step_add(&rhs_bad_add, &mut x, &mut dx, &t, &dt, &p) {
+        let mut rk4 = RK4::from((&x, &t, &dt, &p));
+        match rk4.do_step_add(&rhs_bad_add, &mut x, &t, &dt, &p) {
             Ok(()) => panic!("We did not catch the error"),
             Err(CalcError) => (),
         };
@@ -277,13 +263,12 @@ mod tests_rk4 {
     #[test]
     #[should_panic]
     fn no_catch_calc_panic_iter_f32() {
-        let rk4 = RK4 {};
         let mut x = vec!(1.2943859f32, 239489.2394879f32, 11.987908234f32);
-        let mut dx = vec!(0.0f32, 0.0f32, 0.0f32);
         let dt = 0.323987f32;
         let t = 5.23423987f32;
         let p = 345.394857f32;
-        match rk4.do_step_iter(&rhs_bad_iter, &mut x, &mut dx, &t, &dt, &p) {
+        let mut rk4 = RK4::from((&x, &t, &dt, &p));
+        match rk4.do_step_iter(&rhs_bad_iter, &mut x, &t, &dt, &p) {
             Ok(()) => panic!("We did not catch the error"),
             Err(CalcError) => (),
         };
@@ -292,13 +277,12 @@ mod tests_rk4 {
     #[test]
     #[should_panic]
     fn no_catch_calc_panic_iter_f64() {
-        let rk4 = RK4 {};
         let mut x = vec!(1.2943859, 239489.2394879, 11.987908234);
-        let mut dx = vec!(0.0, 0.0, 0.0);
         let dt = 0.323987;
         let t = 5.23423987;
         let p = 345.394857;
-        match rk4.do_step_iter(&rhs_bad_iter, &mut x, &mut dx, &t, &dt, &p) {
+        let mut rk4 = RK4::from((&x, &t, &dt, &p));
+        match rk4.do_step_iter(&rhs_bad_iter, &mut x, &t, &dt, &p) {
             Ok(()) => panic!("We did not catch the error"),
             Err(CalcError) => (),
         };
