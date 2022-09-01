@@ -45,6 +45,19 @@ where
 {}
 
 
+/// # ODE Definition
+/// A Ordinary Differential Equation (ODE) is defined by
+/// \begin{align}
+///     \frac{dy}{dt} &= f(y, t, p)\\\\
+///     y(t_0) &= y_0
+/// \end{align}
+/// meaning by the right-hand side of the first equation and initial values
+pub struct OdeDefinition<'a, I, F, P, Err> {
+    pub y0: I,
+    pub t0: F,
+    pub func: &'a dyn Fn(&I, &mut I, &F, &P) -> Result<(), Err>,
+}
+
 
 /// # Steppers
 /// This trait allows increasing the current value of an ODE to the next time step via differnt methods.
