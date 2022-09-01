@@ -5,21 +5,43 @@
 
 use std::ops::{Add,Sub,Mul,AddAssign,SubAssign,Div,Neg};
 
-// Hopefully we can in the future use trait aliases: https://github.com/rust-lang/rust/issues/41517
-/*
-pub trait Field =
-    // Mathematical operations
+/// This type allows one to arbitrary floating point types and even in theory exact decimal fractions to numerically integrate the ODE
+/// Since some algorithms require the use of constants, we need to be able to map at least from natural numbers to our FloatLikeType
+/// The type i8 was chosen since implementations for f64 and f32 were already present.
+pub trait FloatLikeType:
     Add<Self,Output=Self> +
     Sub<Self,Output=Self> +
     Mul<Self,Output=Self> +
     Div<Self,Output=Self> +
     AddAssign +
     SubAssign +
-    Neg +
-    // Other operations necessary
+    Neg<Output=Self> +
     Copy +
-    Sized
-*/
+    From<i8>
+{}
+
+impl<T> FloatLikeType for T
+where
+    T: Add<Self,Output=Self> + Sub<Self,Output=Self> + Mul<Self,Output=Self> + Div<Self,Output=Self> + AddAssign + SubAssign + Neg<Output=Self> + Copy + From<i8>
+{}
+
+
+/// This type is ment to represent a mathematical type similar to a fixed-size vector in a vector space
+/// For a definition look at eg. <https://lyryx.com/first-course-linear-algebra/>
+pub trait MathVecLikeType<F>:
+    Add<Output=Self> +
+    AddAssign +
+    Clone +
+    Mul<F,Output=Self>
+{}
+
+impl<T, F> MathVecLikeType<F> for T
+where
+    T: Add<Output=Self> + AddAssign + Clone + Mul<F,Output=Self>,
+    F: FloatLikeType
+{}
+
+// Hopefully we can in the future use trait aliases: https://github.com/rust-lang/rust/issues/41517
 
 
 pub trait Stepper {
@@ -36,8 +58,7 @@ pub trait Stepper {
     where
         for<'m>&'m mut I: IntoIterator<Item=&'m mut F>,
         for<'m>&'m I: IntoIterator<Item=&'m F>,
-        F: Add<F,Output=F> + Sub<F,Output=F> + Mul<F,Output=F> + Div<F,Output=F> + AddAssign + SubAssign + Neg<Output=F> + Copy + From<i8>,
-        P: std::panic::RefUnwindSafe;
+        F: FloatLikeType;
     
     
     fn do_step_add<'a, 'b, I, F: 'b, P, Err>
@@ -51,7 +72,6 @@ pub trait Stepper {
         p:  &P
     ) -> Result<(), Err>
     where
-        I: Add<Output=I> + AddAssign + Clone + Mul<F,Output=I> + Mul<F,Output=I>,
-        F: Add<F,Output=F> + Sub<F,Output=F> + Mul<F,Output=F> + Div<F,Output=F> + AddAssign + SubAssign + Neg<Output=F> + Copy + From<i8> + Mul<I,Output=I>,
-        P: std::panic::RefUnwindSafe;
+        I: MathVecLikeType<F>,
+        F: FloatLikeType + Mul<I,Output=I>;
 }

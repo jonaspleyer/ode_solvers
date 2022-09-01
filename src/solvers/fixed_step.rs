@@ -5,7 +5,7 @@
 
 use crate::concepts::steppers::*;
 
-use std::ops::{Add,Sub,Mul,AddAssign,SubAssign,Div,Neg};
+use std::ops::{Mul};
 
 pub struct Euler {}
 
@@ -23,7 +23,7 @@ impl Stepper for Euler {
     where
         for<'m>&'m mut I: IntoIterator<Item=&'m mut F>,
         for<'m>&'m I: IntoIterator<Item=&'m F>,
-        F: Add<F,Output=F> + Sub<F,Output=F> + Mul<F,Output=F> + Div<F,Output=F> + AddAssign + SubAssign + Neg<Output=F> + Copy + From<i8>,
+        F: FloatLikeType,
     {
         func(y, dy, t, p)?;
         for (yi, dyi) in y.into_iter().zip(dy.into_iter()) {
@@ -43,8 +43,8 @@ impl Stepper for Euler {
         p:  &P
     ) -> Result<(), Err>
     where
-        I: Add<Output=I> + AddAssign + Clone + Mul<F,Output=I> + Mul<F,Output=I>,
-        F: Add<F,Output=F> + Sub<F,Output=F> + Mul<F,Output=F> + Div<F,Output=F> + AddAssign + SubAssign + Neg + Copy + From<i8> + Mul<I,Output=I>,
+        I: MathVecLikeType<F>,
+        F: FloatLikeType + Mul<I,Output=I>,
     {
         func(y, dy, t, p)?;
         *y += *dt * dy.clone();
@@ -84,7 +84,7 @@ impl Stepper for RK4 {
     where
         for<'m>&'m mut I: IntoIterator<Item=&'m mut F>,
         for<'m>&'m I: IntoIterator<Item=&'m F>,
-        F: Add<F,Output=F> + Sub<F,Output=F> + Mul<F,Output=F> + Div<F,Output=F> + AddAssign + SubAssign + Neg<Output=F> + Copy + From<i8>,
+        F: FloatLikeType,
     {
         func(y, dy, t, p)?;
         for (yi, dyi) in y.into_iter().zip(dy.into_iter()) {
@@ -106,8 +106,8 @@ impl Stepper for RK4 {
         p:  &P
     ) -> Result<(), Err>
     where
-        I: Add<Output=I> + AddAssign + Clone + Mul<F,Output=I> + Mul<F,Output=I>,
-        F: Add<F,Output=F> + Sub<F,Output=F> + Mul<F,Output=F> + Div<F,Output=F> + AddAssign + SubAssign + Neg<Output=F> + Copy + From<i8> + Mul<I,Output=I>,
+        I: MathVecLikeType<F>,
+        F: FloatLikeType + Mul<I,Output=I>,
     {
         let mut ym: I;
         let k1: I;
