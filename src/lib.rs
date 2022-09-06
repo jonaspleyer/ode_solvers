@@ -13,5 +13,11 @@
 //! ODEs are accepted in the following form:
 //! *f(y, dy, t, p)*
 
+/// # Abstract Concepts
+/// Contains Traits and objects common to every ODE problem.
 pub mod concepts;
+
+/// # Solving Algorithms
+/// Contains generic implementations of different solving algorithms.
+/// When supplied with concrete types, these can solve ODEs.
 pub mod solvers;
