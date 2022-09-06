@@ -18,13 +18,14 @@ pub trait FloatLikeType:
     AddAssign +
     SubAssign +
     Neg<Output=Self> +
+    std::cmp::PartialOrd<Self> +
     Copy +
     From<i8>
 {}
 
 impl<T> FloatLikeType for T
 where
-    T: Add<Self,Output=Self> + Sub<Self,Output=Self> + Mul<Self,Output=Self> + Div<Self,Output=Self> + AddAssign + SubAssign + Neg<Output=Self> + Copy + From<i8>
+    T: Add<Self,Output=Self> + Sub<Self,Output=Self> + Mul<Self,Output=Self> + Div<Self,Output=Self> + AddAssign + SubAssign + Neg<Output=Self> + std::cmp::PartialOrd<Self> + Copy + From<i8>
 {}
 
 /// # Abstract vector type

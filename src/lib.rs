@@ -21,3 +21,11 @@ pub mod concepts;
 /// Contains generic implementations of different solving algorithms.
 /// When supplied with concrete types, these can solve ODEs.
 pub mod solvers;
+
+/// # Quality of life Re-Exports
+/// Collection of functions and objects which should suffice to solve any ODE.
+pub mod prelude;
+
+/// # User Solving Functions
+/// These functions are meant to be called directly and many of them are reexported in the prelude file.
+pub mod methods;

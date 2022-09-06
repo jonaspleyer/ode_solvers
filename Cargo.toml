@@ -21,6 +21,7 @@ rustdoc-args = [ "--html-in-header", "./doc/docs-header.html" ]
 
 
 [dependencies]
+itertools = { version="0.10" }
 
 
 [dev-dependencies]
