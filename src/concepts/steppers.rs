@@ -52,6 +52,7 @@ where
 ///     y(t_0) &= y_0
 /// \end{align}
 /// meaning by the right-hand side of the first equation and initial values
+#[derive(Clone)]
 pub struct OdeDefinition<'a, I, F, P, Err> {
     pub y0: I,
     pub t0: F,
@@ -73,7 +74,6 @@ pub trait Stepper<I, F, P, Err> {
     fn do_step_iter
     (
         &mut self,
-        func: &dyn Fn(&I, &mut I, &F, &P) -> Result<(), Err>,
         y:  &mut I,
         t:  &F,
         dt: &F,
@@ -88,7 +88,6 @@ pub trait Stepper<I, F, P, Err> {
     fn do_step_add
     (
         &mut self,
-        func: &dyn Fn(&I, &mut I, &F, &P) -> Result<(), Err>,
         y:  &mut I,
         t:  &F,
         dt: &F,

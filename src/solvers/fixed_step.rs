@@ -13,28 +13,31 @@ use std::ops::{Mul};
 /// \begin{equation}
 ///     y_1 = y_0 + dt f(y, t, p)
 /// \end{equation}
-pub struct Euler<I> {
+pub struct Euler<'a, I, F, P, Err> {
+    ode_def: OdeDefinition<'a, I, F, P, Err>,
     dy: I,
 }
 
-impl<I, F, P> From<(&I, &F, &F, &P)> for Euler<I>
+/// Create an Euler stepper from a OdeDefinition
+impl<'a, I, F, P, Err> From<OdeDefinition<'a, I, F, P, Err>> for Euler<'a, I, F, P, Err>
 where
     I: Clone,
     F: Copy,
     P: Clone,
 {
-    fn from(input: (&I, &F, &F, &P)) -> Euler<I> {
+    fn from(input: OdeDefinition<'a, I, F, P, Err>) -> Euler<'a, I, F, P, Err> {
+        let dy = input.y0.clone();
         Euler {
-            dy: input.0.clone(),
+            ode_def: input,
+            dy: dy,
         }
     }
 }
 
-impl<I, F, P, Err> Stepper<I, F, P, Err> for Euler<I> {
+impl<'a, I, F, P, Err> Stepper<I, F, P, Err> for Euler<'a, I, F, P, Err> {
     fn do_step_iter
     (
         &mut self,
-        func: &dyn Fn(&I, &mut I, &F, &P) -> Result<(), Err>,
         y:  &mut I,
         t:  &F,
         dt: &F,
@@ -45,7 +48,7 @@ impl<I, F, P, Err> Stepper<I, F, P, Err> for Euler<I> {
         for<'m>&'m I: IntoIterator<Item=&'m F>,
         F: FloatLikeType,
     {
-        func(y, &mut self.dy, t, p)?;
+        (self.ode_def.func)(y, &mut self.dy, t, p)?;
         for (yi, dyi) in y.into_iter().zip(self.dy.into_iter()) {
             *yi += *dt * *dyi;
         }
@@ -55,7 +58,6 @@ impl<I, F, P, Err> Stepper<I, F, P, Err> for Euler<I> {
     fn do_step_add
     (
         &mut self,
-        func: &dyn Fn(&I, &mut I, &F, &P) -> Result<(), Err>,
         y:  &mut I,
         t:  &F,
         dt: &F,
@@ -65,7 +67,7 @@ impl<I, F, P, Err> Stepper<I, F, P, Err> for Euler<I> {
         I: MathVecLikeType<F>,
         F: FloatLikeType + Mul<I,Output=I>,
     {
-        func(y, &mut self.dy, t, p)?;
+        (self.ode_def.func)(y, &mut self.dy, t, p)?;
         *y += *dt * self.dy.clone();
         Ok(())
     }
@@ -86,18 +88,8 @@ impl<I, F, P, Err> Stepper<I, F, P, Err> for Euler<I> {
 /// \begin{equation}
 ///     y_1 = y_0 + \tfrac{1}{6} (k_1 + 2 k_2 + 2 k_3 + k_4).
 /// \end{equation}
-/* pub struct RK4<I, F, P> {
-    y: I,
-    t: F,
-    dt: F,
-    k1: I,
-    k2: I,
-    k3: I,
-    k4: I,
-    p: P,
-}*/
-
-pub struct RK4<I> {
+pub struct RK4<'a, I, F, P, Err> {
+    ode_def: OdeDefinition<'a, I, F, P, Err>,
     // Helper variables
     k1: I,
     k2: I,
@@ -107,30 +99,32 @@ pub struct RK4<I> {
     ym: I,
 }
 
-impl<I, F, P> From<(&I, &F, &F, &P)> for RK4<I>
+/// Create a RK4 stepper from a 
+impl<'a, I, F, P, Err> From<OdeDefinition<'a, I, F, P, Err>> for RK4<'a, I, F, P, Err>
 where
     I: Clone,
     F: Copy,
     P: Clone,
 {
-    fn from(input: (&I, &F, &F, &P)) -> RK4<I> {
+    fn from(input: OdeDefinition<'a, I, F, P, Err>) -> RK4<'a, I, F, P, Err> {
+        let dy = input.y0.clone();
         RK4 {
-            k1: input.0.clone(),
-            k2: input.0.clone(),
-            k3: input.0.clone(),
-            k4: input.0.clone(),
-            dy: input.0.clone(),
-            ym: input.0.clone(),
+            ode_def: input,
+            k1: dy.clone(),
+            k2: dy.clone(),
+            k3: dy.clone(),
+            k4: dy.clone(),
+            dy: dy.clone(),
+            ym: dy.clone(),
         }
     }
 }
 
 // Implement the RK4 stepper
-impl<I, F, P, Err> Stepper<I, F, P, Err> for RK4<I> {
+impl<'a, I, F, P, Err> Stepper<I, F, P, Err> for RK4<'a, I, F, P, Err> {
     fn do_step_iter
     (
         &mut self,
-        func: &dyn Fn(&I, &mut I, &F, &P) -> Result<(), Err>,
         y:  &mut I,
         t:  &F,
         dt: &F,
@@ -141,7 +135,7 @@ impl<I, F, P, Err> Stepper<I, F, P, Err> for RK4<I> {
         for<'m>&'m I: IntoIterator<Item=&'m F>,
         F: FloatLikeType,
     {
-        func(y, &mut self.dy, t, p)?;
+        (self.ode_def.func)(y, &mut self.dy, t, p)?;
         for (yi, dyi) in y.into_iter().zip(self.dy.into_iter()) {
             // TODO
             // This is not a Runge-Kutta solver yet!
@@ -153,7 +147,6 @@ impl<I, F, P, Err> Stepper<I, F, P, Err> for RK4<I> {
     fn do_step_add
     (
         &mut self,
-        func: &dyn Fn(&I, &mut I, &F, &P) -> Result<(), Err>,
         y:  &mut I,
         t:  &F,
         dt: &F,
@@ -165,21 +158,20 @@ impl<I, F, P, Err> Stepper<I, F, P, Err> for RK4<I> {
     {
         let half = F::from(1)/F::from(2);
 
-        func(y, &mut self.dy, t, p)?;
+        (self.ode_def.func)(y, &mut self.dy, t, p)?;
         // TODO
         // Find more optimal version of this code
         self.k1 = *dt * self.dy.clone();
         self.ym = y.clone() + half * self.k1.clone();
-        func(&self.ym, &mut self.dy, &(*t + half * *dt), p)?;
+        (self.ode_def.func)(&self.ym, &mut self.dy, &(*t + half * *dt), p)?;
         self.k2 = *dt * self.dy.clone();
         self.ym = y.clone() + half * self.k2.clone();
-        func(&self.ym, &mut self.dy, &(*t + half * *dt), p)?;
+        (self.ode_def.func)(&self.ym, &mut self.dy, &(*t + half * *dt), p)?;
         self.k3 = *dt * self.dy.clone();
         self.ym = y.clone() + self.k3.clone();
-        func(&self.ym, &mut self.dy, &(*t + *dt), p)?;
+        (self.ode_def.func)(&self.ym, &mut self.dy, &(*t + *dt), p)?;
         self.k4 = *dt * self.dy.clone();
         *y += half / F::from(3) * (self.k1.clone() + F::from(2) * self.k2.clone() + F::from(2) * self.k3.clone() + self.k4.clone());
         Ok(())
     }
 }
-
