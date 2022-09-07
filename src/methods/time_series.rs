@@ -42,7 +42,7 @@ use itertools::Itertools;
 /// }
 /// 
 /// // Actually numerically integrate the ODE
-/// let res = solve_ode_time_series_single_step_iter(&y0, &t_series, &rhs_arr, &p);
+/// let res = solve_ode_time_series_single_step_iter(&y0, &t_series, &rhs_arr, &p, Rk4);
 /// 
 /// // Check if solving was successfull and print if so
 /// match res {
@@ -61,31 +61,33 @@ use itertools::Itertools;
 pub fn solve_ode_time_series_single_step_iter<'a, I, F, P, E, V> (
     y0: &I,
     t_series: &V,
-    rhs: &'a dyn Fn(&I, &mut I, &F, &P) -> Result<(), E>,
-    p: &P
+    rhs: RHS<'a, I, F, P, E>,
+    p: &P,
+    solver_type: FixedStepSolvers
 ) -> Result<Vec<I>, SolvingError>
 where
     for<'m>&'m mut I: IntoIterator<Item=&'m mut F>,
     for<'m>&'m I: IntoIterator<Item=&'m F>,
     I: Clone,
-    F: FloatLikeType, // TODO remove this once it is working
+    F: FloatLikeType,
     P: Clone,
-    E: Error,
+    E: Error + Clone,
     for<'m>&'m V: IntoIterator<Item=&'m F>,
 {
     let t_i = t_series.into_iter().next();
-    let t0: F;
-    match t_i {
-        Some(t) => t0 = t.clone(),
+    let t0 = match t_i {
+        Some(t) => t,
         None => return Err(SolvingError::from("Did not supply enough time steps.")),
-    }
+    };
     let ode_def = OdeDefinition {
         y0: y0.clone(),
-        t0: t0.clone(),
+        t0: *t0,
         func: rhs,
     };
 
-    let mut rk4_y = RK4::from(ode_def);
+    // let mut stepper = Rk4::from(ode_def.clone());
+    
+    let mut stepper = get_fixed_step_stepper(solver_type, ode_def);
     let mut y = y0.clone();
 
     // In the future use the method: with_capacity(t_series.len())
@@ -98,11 +100,30 @@ where
         if dt < F::from(0) {
             return Err(SolvingError::from("Time steps need to be increasing"));
         }
-        match rk4_y.do_step_iter(&mut y, &t_i, &dt, &p) {
+        match stepper.do_step_iter(&mut y, t_i, &dt, p) {
             Ok(()) => (),
             Err(error) => return Err(SolvingError::from(format!("{error} {:?}",error))),
         }
         y_res.push(y.clone());
     }
     Ok(y_res)
+}
+
+
+/// Helper function to obtain a Stepper Trait Object from the enum of steppers
+fn get_fixed_step_stepper<'a, I, F, P, E>
+(
+    solver_type: FixedStepSolvers,
+    ode_def: OdeDefinition<'a, I, F, P, E>,
+) -> Box<dyn Stepper<I, F, P, E> + 'a>
+where
+    I: Clone,
+    F: FloatLikeType,
+    P: Clone,
+    E: Clone,
+{
+    match solver_type {
+        FixedStepSolvers::Euler => Box::new(Euler::from(ode_def)) as Box<dyn Stepper<I, F, P, E>>,
+        FixedStepSolvers::Rk4 => Box::new(Rk4::from(ode_def)) as Box<dyn Stepper<I, F, P, E>>,
+    }
 }
