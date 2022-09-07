@@ -8,6 +8,11 @@ use crate::concepts::ode_def::*;
 
 use std::ops::{Mul};
 
+pub enum FixedStepSolvers {
+    Euler,
+    Rk4,
+}
+
 /// # Euler stepper
 /// This stepper is meant as an example and is one that should generally not be used.
 /// Solving of the ODE is done via
@@ -30,7 +35,7 @@ where
         let dy = input.y0.clone();
         Euler {
             ode_def: input,
-            dy: dy,
+            dy,
         }
     }
 }
@@ -89,7 +94,7 @@ impl<'a, I, F, P, Err> Stepper<I, F, P, Err> for Euler<'a, I, F, P, Err> {
 /// \begin{equation}
 ///     y_1 = y_0 + \tfrac{1}{6} (k_1 + 2 k_2 + 2 k_3 + k_4).
 /// \end{equation}
-pub struct RK4<'a, I, F, P, Err> {
+pub struct Rk4<'a, I, F, P, Err> {
     ode_def: OdeDefinition<'a, I, F, P, Err>,
     // Helper variables
     k1: I,
@@ -100,29 +105,29 @@ pub struct RK4<'a, I, F, P, Err> {
     ym: I,
 }
 
-/// Create a RK4 stepper from a 
-impl<'a, I, F, P, Err> From<OdeDefinition<'a, I, F, P, Err>> for RK4<'a, I, F, P, Err>
+/// Create a Rk4 stepper from a 
+impl<'a, I, F, P, Err> From<OdeDefinition<'a, I, F, P, Err>> for Rk4<'a, I, F, P, Err>
 where
     I: Clone,
     F: Copy,
     P: Clone,
 {
-    fn from(input: OdeDefinition<'a, I, F, P, Err>) -> RK4<'a, I, F, P, Err> {
+    fn from(input: OdeDefinition<'a, I, F, P, Err>) -> Rk4<'a, I, F, P, Err> {
         let dy = input.y0.clone();
-        RK4 {
+        Rk4 {
             ode_def: input,
             k1: dy.clone(),
             k2: dy.clone(),
             k3: dy.clone(),
             k4: dy.clone(),
             dy: dy.clone(),
-            ym: dy.clone(),
+            ym: dy,
         }
     }
 }
 
-// Implement the RK4 stepper
-impl<'a, I, F, P, Err> Stepper<I, F, P, Err> for RK4<'a, I, F, P, Err> {
+// Implement the Rk4 stepper
+impl<'a, I, F, P, Err> Stepper<I, F, P, Err> for Rk4<'a, I, F, P, Err> {
     fn do_step_iter
     (
         &mut self,

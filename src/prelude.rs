@@ -5,6 +5,7 @@
 
 // Traits, structs that might be useful
 pub use crate::concepts::errors::*;
+pub use crate::solvers::fixed_step::FixedStepSolvers::*;
 
 
 // Methods to solve ODEs
