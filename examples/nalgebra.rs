@@ -5,9 +5,7 @@
 
 use nalgebra::{Vector3,Rotation3};
 
-use ode_integrate::concepts::errors::CalcError;
-use ode_integrate::solvers::fixed_step::{Euler};
-use ode_integrate::concepts::steppers::Stepper;
+use ode_integrate::prelude::*;
 
 
 fn rhs(y: &Vector3<f64>, dy: &mut Vector3<f64>, _t: &f64, p: &Rotation3<f64>) -> Result<(), CalcError> {
@@ -17,22 +15,29 @@ fn rhs(y: &Vector3<f64>, dy: &mut Vector3<f64>, _t: &f64, p: &Rotation3<f64>) ->
 
 
 fn main() {
-    let mut y  = Vector3::from([1.0 ,2.0, 3.0]);
+    let y0 = Vector3::from([1.0 ,2.0, 3.0]);
 
-    let axis   = Vector3::x_axis();
-    let angle  = 0.1;
-    let p      = Rotation3::from_axis_angle(&axis, angle);
+    let axis = Vector3::x_axis();
+    let angle = 0.1;
+    let p = Rotation3::from_axis_angle(&axis, angle);
 
-    let dt     = 0.1;
-    let mut t  = 0.0;
-    let tmax   = 2.0;
+    let dt = 0.1;
+    let steps: usize = 10;
+    let t0 = 0.0;
+    let mut t_series = Vec::with_capacity(steps);
 
-    let mut eu = Euler::from((&y, &t, &dt, &p));
+    for n in 0..steps {
+        t_series.push(t0 + n as f64 * dt);
+    }
 
-    while t<tmax {
-        // do_step(&rhs, &mut y, &mut dy, &t, &dt, &p);
-        eu.do_step_iter(&rhs, &mut y, &t, &dt, &p).unwrap();
-        println!("{:6.4} y=[{:6.4} {:6.4} {:6.4}]", t, y[0], y[1], y[2]);
-        t += dt;
+    let res = solve_ode_time_series_single_step_iter(&y0, &t_series, &rhs, &p, Rk4);
+
+    match res {
+        Ok(y_res) => {
+            for yi in y_res {
+                println!("{}", yi);
+            }
+        },
+        Err(e) => println!("{e}"),
     }
 }
