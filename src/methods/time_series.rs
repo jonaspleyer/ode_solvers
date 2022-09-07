@@ -6,6 +6,7 @@
 use crate::solvers::fixed_step::*;
 use crate::concepts::steppers::*;
 use crate::concepts::errors::*;
+use crate::concepts::ode_def::*;
 
 use std::error::Error;
 use itertools::Itertools;

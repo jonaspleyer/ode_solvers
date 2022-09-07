@@ -8,3 +8,5 @@
 pub mod steppers;
 /// # Error Types
 pub mod errors;
+/// # Types and Traits to define a ODE
+pub mod ode_def;
