@@ -84,13 +84,11 @@ where
         t0: *t0,
         func: rhs,
     };
-
-    // let mut stepper = Rk4::from(ode_def.clone());
     
     let mut stepper = get_fixed_step_stepper(solver_type, ode_def);
     let mut y = y0.clone();
 
-    // In the future use the method: with_capacity(t_series.len())
+    // TODO In the future use the method: with_capacity(t_series.len())
     // This is currently not possible since len() is a function inherent to std::Vec and not any trait.
     let mut y_res = vec![y0.clone()];
 
