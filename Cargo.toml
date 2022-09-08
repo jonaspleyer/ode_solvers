@@ -29,3 +29,4 @@ ndarray = { version="0.15" }
 nalgebra = { version="0.31" }
 num = { version="0.4" }
 arrayfire = { version="3.8" }
+approx = { version="0.5" }

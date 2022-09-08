@@ -4,4 +4,4 @@
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 #[cfg(test)]
-pub mod convergence_tests;
+pub mod error_estimate_tests;
