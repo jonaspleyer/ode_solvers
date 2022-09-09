@@ -106,3 +106,51 @@ where
     }
     Ok(y_res)
 }
+
+
+pub fn solve_ode_time_series_single_step_add<'a, I, F, P, E, V> (
+    y0: &I,
+    t_series: &V,
+    rhs: RHS<'a, I, F, P, E>,
+    p: &P,
+    solver_type: FixedStepSolvers
+) -> Result<Vec<I>, SolvingError>
+where
+    I: MathVecLikeType<F>,
+    F: FloatLikeType + Mul<I,Output=I>,
+    P: Clone,
+    E: Error + Clone,
+    for<'m>&'m V: IntoIterator<Item=&'m F>,
+{
+    let t_i = t_series.into_iter().next();
+    let t0 = match t_i {
+        Some(t) => t,
+        None => return Err(SolvingError::from("Did not supply enough time steps.")),
+    };
+    let ode_def = OdeDefinition {
+        y0: y0.clone(),
+        t0: *t0,
+        func: rhs,
+    };
+    
+    let mut stepper = get_fixed_step_stepper(solver_type, ode_def);
+    let mut y = y0.clone();
+
+    // TODO In the future use the method: with_capacity(t_series.len())
+    // This is currently not possible since len() is a function inherent to std::Vec and not any trait.
+    let mut y_res = vec![y0.clone()];
+
+    let mut dt: F;
+    for (t_i, t_j) in t_series.into_iter().tuple_windows::<(_,_)>() {
+        dt = *t_j - *t_i;
+        if dt < F::from(0) {
+            return Err(SolvingError::from("Time steps need to be increasing"));
+        }
+        match stepper.do_step_add(&mut y, t_i, &dt, p) {
+            Ok(()) => (),
+            Err(error) => return Err(SolvingError::from(format!("{error} {:?}",error))),
+        }
+        y_res.push(y.clone());
+    }
+    Ok(y_res)
+}
