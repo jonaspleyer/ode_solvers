@@ -8,3 +8,6 @@ pub mod time_series;
 
 /// # Solve a ODE until a certain criterion is reached
 pub mod conditional;
+
+/// # Helper functions
+pub mod helper_functions;
