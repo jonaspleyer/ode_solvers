@@ -1,3 +1,9 @@
+<div align="center">
+    <img alt="ode_integrate" src="doc/logo2.svg" width="320"/>
+</div>
+<br/>
+
+[comment]: <> (https://waldyrious.net/viridis-palette-generator/)
 # ode_integrate
 [![License: MPL 2.0](https://img.shields.io/badge/License-MPL_2.0-brightgreen.svg)](https://opensource.org/licenses/MPL-2.0)
 [![Test Status](https://github.com/jonaspleyer/ode_integrate/actions/workflows/test.yml/badge.svg?event=push)](https://github.com/jonaspleyer/ode_integrate/actions)
