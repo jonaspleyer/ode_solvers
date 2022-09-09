@@ -3,288 +3,289 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-use crate::concepts::steppers::*;
+// use crate::concepts::steppers::*;
 use crate::solvers::fixed_step::*;
-use std::ops::{Add,Sub,Mul,AddAssign,SubAssign,Div,Neg};
+use crate::concepts::ode_def::*;
+use crate::concepts::errors::CalcError;
+use crate::methods::helper_functions::*;
 
 
-mod tests_euler {
-    use super::*;
-    use crate::concepts::errors::CalcError;
+use f128::f128;
+use half::f16;
 
-    fn rhs_vec<F>(x: &Vec<F>, dx: &mut Vec<F>, t: &F, p: &F) -> Result<(), CalcError>
-    where
-        F: Copy + Add<Output=F> + Add<F,Output=F> + AddAssign + Mul<F,Output=F> + Div<F,Output=F> + Neg<Output=F> + From<i8>,
-    {
-        for (xi, dxi) in x.into_iter().zip(dx.into_iter()) {
-            *dxi = - *p * *xi * *t;
+
+enum Operations {
+    Add,
+    Iter
+}
+
+
+enum Ethos {
+    Good,
+    Bad,
+}
+
+
+#[macro_export]
+macro_rules! do_step {
+    ($f: ty, $s: expr, $conf: expr) => {
+        type F = $f;
+
+        fn rhs_iter_good(x: &Vec<F>, dx: &mut Vec<F>, t: &F, p: &F) -> Result<(), CalcError> {
+            for (xi, dxi) in x.into_iter().zip(dx.into_iter()) {
+                *dxi = - *p * *xi * *t;
+            }
+            Ok(())
         }
-        Ok(())
-    }
 
+        fn rhs_iter_bad(x: &Vec<F>, dx: &mut Vec<F>, t: &F, p: &F) -> Result<(), CalcError> {
+            for (xi, dxi) in x.into_iter().zip(dx.into_iter()) {
+                *dxi = - *p * *xi * *t;
+            }
+            panic!("Test panic inserted here");
+        }
 
-    fn rhs_add<I, F>(x: &I, dx: &mut I, t: &F, p: &F) -> Result<(), CalcError>
-    where
-        I: Add<Output=I> + AddAssign + Clone + Mul<F,Output=I> + Mul<F,Output=I> + std::ops::Neg<Output=I>,
-        F: Add<F,Output=F> + Sub<F,Output=F> + Mul<F,Output=F> + Div<F,Output=F> + AddAssign + SubAssign + Neg<Output=F> + Copy + From<i8> + Mul<I,Output=I>,
-    {
-        *dx = - *p * x.clone() * *t;
-        Ok(())
-    }
+        fn rhs_add_good(x: &F, dx: &mut F, t: &F, p: &F) -> Result<(), CalcError> {
+            *dx = - *p * *x * *t;
+            Ok(())
+        }
 
+        fn rhs_add_bad(x: &F, dx: &mut F, t: &F, p: &F) -> Result<(), CalcError> {
+            *dx = - *p * *x * *t;
+            panic!("Test panic inserted here");
+        }
 
-    #[test]
-    fn do_step_iter_f64() {
-        let mut x = vec!(2.0, 3.0, 4.0, 5.0);
-        let dt = 0.1;
-        let t = 2.0;
-        let p = 4.0;
-        let mut eu = Euler::from((&x, &t, &dt, &p));
-        eu.do_step_iter(&rhs_vec, &mut x, &t, &dt, &p).unwrap();
-    }
+        const VEC_MIN: u8 = 0;
+        const VEC_MAX: u8 = 20;
 
-    #[test]
-    fn do_step_iter_f32() {
-        let mut x = vec!(2.0f32, 3.0f32, 4.0f32, 5.0f32);
-        let dt = 0.1f32;
-        let t = 2.0f32;
-        let p = 4.0f32;
-        let mut eu = Euler::from((&x, &t, &dt, &p));
-        eu.do_step_iter(&rhs_vec, &mut x, &t, &dt, &p).unwrap();
-    }
+        let dt = F::from(1u8) / F::from(10u8);
+        let mut t = F::from(2u8);
+        let p = F::from(4u8);
 
-    #[test]
-    fn do_step_add_f64() {
-        let mut x = 2.0;
-        let dt = 0.1;
-        let t = 2.0;
-        let p = 4.0;
-        let mut eu = Euler::from((&x, &t, &dt, &p));
-        eu.do_step_add(&rhs_add, &mut x, &t, &dt, &p).unwrap();
-    }
-
-    #[test]
-    fn do_step_add_f32() {
-        let mut x = 2.0f32;
-        let dt = 0.1f32;
-        let t = 2.0f32;
-        let p = 4.0f32;
-        let mut eu = Euler::from((&x, &t, &dt, &p));
-        eu.do_step_add(&rhs_add, &mut x, &t, &dt, &p).unwrap();
-    }
-
-    fn rhs_bad_add<I, F>(_x: &I, _dx: &mut I, _t: &F, _p: &F) -> Result<(), CalcError>
-    where
-        I: Add<Output=I> + AddAssign + Clone + Mul<F,Output=I> + Mul<F,Output=I> + std::ops::Neg<Output=I>,
-        F: Add<F,Output=F> + Sub<F,Output=F> + Mul<F,Output=F> + Div<F,Output=F> + AddAssign + SubAssign + Neg + Copy + From<i8> + Mul<I,Output=I>,
-    {
-        panic!("Purposefully panic to test Solver!");
-    }
-
-    #[test]
-    #[should_panic]
-    fn no_catch_calc_panic_add_f64() {
-        let mut x = 1.2943859;
-        let dt = 0.323987;
-        let t = 5.23423987;
-        let p = 345.394857;
-        let mut eu = Euler::from((&x, &t, &dt, &p));
-        match eu.do_step_add(&rhs_bad_add, &mut x, &t, &dt, &p) {
-            Ok(()) => panic!("We did not catch the error"),
-            Err(CalcError) => (),
-        };
-    }
-
-    #[test]
-    #[should_panic]
-    fn no_catch_calc_panic_add_f32() {
-        let mut x = 1.2943859f32;
-        let dt = 0.323987f32;
-        let t = 5.23423987f32;
-        let p = 345.394857f32;
-        let mut eu = Euler::from((&x, &t, &dt, &p));
-        match eu.do_step_add(&rhs_bad_add, &mut x, &t, &dt, &p) {
-            Ok(()) => panic!("We did not catch the error"),
-            Err(CalcError) => (),
-        };
-    }
-
-    fn rhs_bad_iter<F>(x: &Vec<F>, dx: &mut Vec<F>, _t: &F, p: &F) -> Result<(), CalcError>
-    where
-        F: Copy + Add<Output=F> + Add<F,Output=F> + AddAssign + Mul<F,Output=F> + std::ops::Neg<Output=F> + Div<F,Output=F> + From<i8>,
-    {   
-        let l  =  x.len();
-        let dl = dx.len();
-        dx[dl+1] = - *p * x[l+1];
-        Ok(())
-    }
-
-    #[test]
-    #[should_panic]
-    fn no_catch_calc_panic_iter_f32() {
-        let mut x = vec!(1.2943859f32, 239489.2394879f32, 11.987908234f32);
-        let dt = 0.323987f32;
-        let t = 5.23423987f32;
-        let p = 345.394857f32;
-        let mut eu = Euler::from((&x, &t, &dt, &p));
-        match eu.do_step_iter(&rhs_bad_iter, &mut x, &t, &dt, &p) {
-            Ok(()) => panic!("We did not catch the error"),
-            Err(CalcError) => (),
-        };
-    }
-
-    #[test]
-    #[should_panic]
-    fn no_catch_calc_panic_iter_f64() {
-        let mut x = vec!(1.2943859, 239489.2394879, 11.987908234);
-        let dt = 0.323987;
-        let t = 5.23423987;
-        let p = 345.394857;
-        let mut eu = Euler::from((&x, &t, &dt, &p));
-        match eu.do_step_iter(&rhs_bad_iter, &mut x, &t, &dt, &p) {
-            Ok(()) => panic!("We did not catch the error"),
-            Err(CalcError) => (),
-        };
+        match $conf {
+            (Operations::Iter, Ethos::Good) => {
+                let mut x0: Vec<F> = (VEC_MIN as u8..VEC_MAX as u8).map(F::from).collect();
+                let ode_def = OdeDefinition {y0: x0.clone(), t0: t, func: &rhs_iter_good};
+                let mut s = get_fixed_step_stepper($s, ode_def);
+                for _ in 0..100 {
+                    s.do_step_iter(&mut x0, &t, &dt, &p).unwrap();
+                    t += dt;
+                }
+            },
+            (Operations::Iter, Ethos::Bad) => {
+                let mut x0: Vec<F> = (VEC_MIN as u8..VEC_MAX as u8).map(F::from).collect();
+                let ode_def = OdeDefinition {y0: x0.clone(), t0: t, func: &rhs_iter_bad};
+                let mut s = get_fixed_step_stepper($s, ode_def);
+                for _ in 0..100 {
+                    s.do_step_iter(&mut x0, &t, &dt, &p).unwrap();
+                    t += dt;
+                }
+            },
+            (Operations::Add, Ethos::Good) => {
+                let mut x0: F = F::from(10u8);
+                let ode_def = OdeDefinition {y0: x0.clone(), t0: t, func: &rhs_add_good};
+                let mut s = get_fixed_step_stepper($s, ode_def);
+                for _ in 0..100 {
+                    s.do_step_add(&mut x0, &t, &dt, &p).unwrap();
+                    t += dt;
+                }
+            },
+            (Operations::Add, Ethos::Bad) => {
+                let mut x0: F = F::from(10u8);
+                let ode_def = OdeDefinition {y0: x0.clone(), t0: t, func: &rhs_add_bad};
+                let mut s = get_fixed_step_stepper($s, ode_def);
+                for _ in 0..100 {
+                    s.do_step_add(&mut x0, &t, &dt, &p).unwrap();
+                    t += dt;
+                }
+            },
+        }
     }
 }
 
 
-mod tests_rk4 {
+// TODO can we somehow automate this mess? We only want to iterate over all combinations.
+mod euler {
     use super::*;
-    use super::super::super::concepts::errors::CalcError;
-
-    fn rhs_vec<F>(x: &Vec<F>, dx: &mut Vec<F>, t: &F, p: &F) -> Result<(), CalcError>
-    where
-        F: Copy + Add<Output=F> + Add<F,Output=F> + AddAssign + Mul<F,Output=F> + Div<F,Output=F> + Neg<Output=F> + From<i8>,
-    {
-        for (xi, dxi) in x.into_iter().zip(dx.into_iter()) {
-            *dxi = - *p * *xi * *t;
-        }
-        Ok(())
-    }
-
-
-    fn rhs_add<I, F>(x: &I, dx: &mut I, t: &F, p: &F) -> Result<(), CalcError>
-    where
-        I: Add<Output=I> + AddAssign + Clone + Mul<F,Output=I> + Mul<F,Output=I> + std::ops::Neg<Output=I>,
-        F: Add<F,Output=F> + Sub<F,Output=F> + Mul<F,Output=F> + Div<F,Output=F> + AddAssign + SubAssign + Neg<Output=F> + Copy + From<i8> + Mul<I,Output=I>,
-    {
-        *dx = - *p * x.clone() * *t;
-        Ok(())
-    }
-
 
     #[test]
-    fn do_step_iter_f64() {
-        let mut x = vec!(2.0, 3.0, 4.0, 5.0);
-        let dt = 0.1;
-        let t = 2.0;
-        let p = 4.0;
-        let mut rk4 = RK4::from((&x, &t, &dt, &p));
-        rk4.do_step_iter(&rhs_vec, &mut x, &t, &dt, &p).unwrap();
+    fn add_good_f128() {
+        do_step!(f128, FixedStepSolvers::Euler, (Operations::Add, Ethos::Good));
     }
 
     #[test]
-    fn do_step_iter_f32() {
-        let mut x = vec!(2.0f32, 3.0f32, 4.0f32, 5.0f32);
-        let dt = 0.1f32;
-        let t = 2.0f32;
-        let p = 4.0f32;
-        let mut rk4 = RK4::from((&x, &t, &dt, &p));
-        rk4.do_step_iter(&rhs_vec, &mut x, &t, &dt, &p).unwrap();
-    }
-
-    #[test]
-    fn do_step_add_f64() {
-        let mut x = 2.0;
-        let dt = 0.1;
-        let t = 2.0;
-        let p = 4.0;
-        let mut rk4 = RK4::from((&x, &t, &dt, &p));
-        rk4.do_step_add(&rhs_add, &mut x, &t, &dt, &p).unwrap();
-    }
-
-    #[test]
-    fn do_step_add_f32() {
-        let mut x = 2.0f32;
-        let dt = 0.1f32;
-        let t = 2.0f32;
-        let p = 4.0f32;
-        let mut rk4 = RK4::from((&x, &t, &dt, &p));
-        rk4.do_step_add(&rhs_add, &mut x, &t, &dt, &p).unwrap();
-    }
-
-    fn rhs_bad_add<I, F>(_x: &I, _dx: &mut I, _t: &F, _p: &F) -> Result<(), CalcError>
-    where
-        I: Add<Output=I> + AddAssign + Clone + Mul<F,Output=I> + Mul<F,Output=I> + std::ops::Neg<Output=I>,
-        F: Add<F,Output=F> + Sub<F,Output=F> + Mul<F,Output=F> + Div<F,Output=F> + AddAssign + SubAssign + Neg + Copy + From<i8> + Mul<I,Output=I>,
-    {
-        panic!("Purposefully panic to test Solver!");
+    fn iter_good_f128() {
+        do_step!(f128, FixedStepSolvers::Euler, (Operations::Iter, Ethos::Good));
     }
 
     #[test]
     #[should_panic]
-    fn no_catch_calc_panic_add_f64() {
-        let mut x = 1.2943859;
-        let dt = 0.323987;
-        let t = 5.23423987;
-        let p = 345.394857;
-        let mut rk4 = RK4::from((&x, &t, &dt, &p));
-        match rk4.do_step_add(&rhs_bad_add, &mut x, &t, &dt, &p) {
-            Ok(()) => panic!("We did not catch the error"),
-            Err(CalcError) => (),
-        };
+    fn add_bad_f128() {
+        do_step!(f128, FixedStepSolvers::Euler, (Operations::Add, Ethos::Bad));
     }
 
     #[test]
     #[should_panic]
-    fn no_catch_calc_panic_add_f32() {
-        let mut x = 1.2943859f32;
-        let dt = 0.323987f32;
-        let t = 5.23423987f32;
-        let p = 345.394857f32;
-        let mut rk4 = RK4::from((&x, &t, &dt, &p));
-        match rk4.do_step_add(&rhs_bad_add, &mut x, &t, &dt, &p) {
-            Ok(()) => panic!("We did not catch the error"),
-            Err(CalcError) => (),
-        };
+    fn iter_bad_f128() {
+        do_step!(f128, FixedStepSolvers::Euler, (Operations::Iter, Ethos::Bad));
     }
 
-    fn rhs_bad_iter<F>(x: &Vec<F>, dx: &mut Vec<F>, _t: &F, p: &F) -> Result<(), CalcError>
-    where
-        F: Copy + Add<Output=F> + Add<F,Output=F> + AddAssign + Mul<F,Output=F> + std::ops::Neg<Output=F> + Div<F,Output=F> + From<i8>,
-    {   
-        let l  =  x.len();
-        let dl = dx.len();
-        dx[dl+1] = - *p * x[l+1];
-        Ok(())
+    #[test]
+    fn add_good_f64() {
+        do_step!(f64, FixedStepSolvers::Euler, (Operations::Add, Ethos::Good));
+    }
+
+    #[test]
+    fn iter_good_f64() {
+        do_step!(f64, FixedStepSolvers::Euler, (Operations::Iter, Ethos::Good));
     }
 
     #[test]
     #[should_panic]
-    fn no_catch_calc_panic_iter_f32() {
-        let mut x = vec!(1.2943859f32, 239489.2394879f32, 11.987908234f32);
-        let dt = 0.323987f32;
-        let t = 5.23423987f32;
-        let p = 345.394857f32;
-        let mut rk4 = RK4::from((&x, &t, &dt, &p));
-        match rk4.do_step_iter(&rhs_bad_iter, &mut x, &t, &dt, &p) {
-            Ok(()) => panic!("We did not catch the error"),
-            Err(CalcError) => (),
-        };
+    fn add_bad_f64() {
+        do_step!(f64, FixedStepSolvers::Euler, (Operations::Add, Ethos::Bad));
     }
 
     #[test]
     #[should_panic]
-    fn no_catch_calc_panic_iter_f64() {
-        let mut x = vec!(1.2943859, 239489.2394879, 11.987908234);
-        let dt = 0.323987;
-        let t = 5.23423987;
-        let p = 345.394857;
-        let mut rk4 = RK4::from((&x, &t, &dt, &p));
-        match rk4.do_step_iter(&rhs_bad_iter, &mut x, &t, &dt, &p) {
-            Ok(()) => panic!("We did not catch the error"),
-            Err(CalcError) => (),
-        };
+    fn iter_bad_f64() {
+        do_step!(f64, FixedStepSolvers::Euler, (Operations::Iter, Ethos::Bad));
+    }
+
+    #[test]
+    fn add_good_f32() {
+        do_step!(f32, FixedStepSolvers::Euler, (Operations::Add, Ethos::Good));
+    }
+
+    #[test]
+    fn iter_good_f32() {
+        do_step!(f32, FixedStepSolvers::Euler, (Operations::Iter, Ethos::Good));
+    }
+
+    #[test]
+    #[should_panic]
+    fn add_bad_f32() {
+        do_step!(f32, FixedStepSolvers::Euler, (Operations::Add, Ethos::Bad));
+    }
+
+    #[test]
+    #[should_panic]
+    fn iter_bad_f32() {
+        do_step!(f32, FixedStepSolvers::Euler, (Operations::Iter, Ethos::Bad));
+    }
+
+    #[test]
+    fn add_good_f16() {
+        do_step!(f16, FixedStepSolvers::Euler, (Operations::Add, Ethos::Good));
+    }
+
+    #[test]
+    fn iter_good_f16() {
+        do_step!(f16, FixedStepSolvers::Euler, (Operations::Iter, Ethos::Good));
+    }
+
+    #[test]
+    #[should_panic]
+    fn add_bad_f16() {
+        do_step!(f16, FixedStepSolvers::Euler, (Operations::Add, Ethos::Bad));
+    }
+
+    #[test]
+    #[should_panic]
+    fn iter_bad_f16() {
+        do_step!(f16, FixedStepSolvers::Euler, (Operations::Iter, Ethos::Bad));
+    }
+}
+
+
+mod rk4 {
+    use super::*;
+
+    #[test]
+    fn add_good_f128() {
+        do_step!(f128, FixedStepSolvers::Rk4, (Operations::Add, Ethos::Good));
+    }
+
+    #[test]
+    fn iter_good_f128() {
+        do_step!(f128, FixedStepSolvers::Rk4, (Operations::Iter, Ethos::Good));
+    }
+
+    #[test]
+    #[should_panic]
+    fn add_bad_f128() {
+        do_step!(f128, FixedStepSolvers::Rk4, (Operations::Add, Ethos::Bad));
+    }
+
+    #[test]
+    #[should_panic]
+    fn iter_bad_f128() {
+        do_step!(f128, FixedStepSolvers::Rk4, (Operations::Iter, Ethos::Bad));
+    }
+
+    #[test]
+    fn add_good_f64() {
+        do_step!(f64, FixedStepSolvers::Rk4, (Operations::Add, Ethos::Good));
+    }
+
+    #[test]
+    fn iter_good_f64() {
+        do_step!(f64, FixedStepSolvers::Rk4, (Operations::Iter, Ethos::Good));
+    }
+
+    #[test]
+    #[should_panic]
+    fn add_bad_f64() {
+        do_step!(f64, FixedStepSolvers::Rk4, (Operations::Add, Ethos::Bad));
+    }
+
+    #[test]
+    #[should_panic]
+    fn iter_bad_f64() {
+        do_step!(f64, FixedStepSolvers::Rk4, (Operations::Iter, Ethos::Bad));
+    }
+
+    #[test]
+    fn add_good_f32() {
+        do_step!(f32, FixedStepSolvers::Rk4, (Operations::Add, Ethos::Good));
+    }
+
+    #[test]
+    fn iter_good_f32() {
+        do_step!(f32, FixedStepSolvers::Rk4, (Operations::Iter, Ethos::Good));
+    }
+
+    #[test]
+    #[should_panic]
+    fn add_bad_f32() {
+        do_step!(f32, FixedStepSolvers::Rk4, (Operations::Add, Ethos::Bad));
+    }
+
+    #[test]
+    #[should_panic]
+    fn iter_bad_f32() {
+        do_step!(f32, FixedStepSolvers::Rk4, (Operations::Iter, Ethos::Bad));
+    }
+
+    #[test]
+    fn add_good_f16() {
+        do_step!(f16, FixedStepSolvers::Rk4, (Operations::Add, Ethos::Good));
+    }
+
+    #[test]
+    fn iter_good_f16() {
+        do_step!(f16, FixedStepSolvers::Rk4, (Operations::Iter, Ethos::Good));
+    }
+
+    #[test]
+    #[should_panic]
+    fn add_bad_f16() {
+        do_step!(f16, FixedStepSolvers::Rk4, (Operations::Add, Ethos::Bad));
+    }
+
+    #[test]
+    #[should_panic]
+    fn iter_bad_f16() {
+        do_step!(f16, FixedStepSolvers::Rk4, (Operations::Iter, Ethos::Bad));
     }
 }

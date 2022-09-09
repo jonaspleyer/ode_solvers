@@ -38,3 +38,5 @@ nalgebra = { version="0.31" }
 num = { version="0.4" }
 arrayfire = { version="3.8" }
 approx = { version="0.5" }
+f128 = { version="0.2" }
+half = { version="2.1" }
