@@ -8,7 +8,7 @@
 name = "ode_integrate"
 description="Collection of numerical ODE Solvers written in generics and thus applicable in many scenarios."
 authors = ["Jonas Pleyer <jonas.pleyer@fdm.uni-freiburg.de>"]
-version = "0.0.1"
+version = "0.0.2"
 license = "MPL-2.0"
 edition = "2021"
 readme = "README.md"
