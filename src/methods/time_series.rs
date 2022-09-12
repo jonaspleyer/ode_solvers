@@ -9,7 +9,6 @@ use crate::concepts::ode_def::*;
 use crate::methods::helper_functions::*;
 
 use std::error::Error;
-use itertools::Itertools;
 
 /// # Solve ODE for specified time points and single steps in between
 /// Solves a ODE supplied via initial parameters and RHS function
@@ -93,7 +92,9 @@ where
     let mut y_res = vec![y0.clone()];
 
     let mut dt: F;
-    for (t_i, t_j) in t_series.into_iter().tuple_windows::<(_,_)>() {
+    let mut t_further = t_series.into_iter();
+    t_further.next();
+    for (t_i, t_j) in t_series.into_iter().zip(t_further) {
         dt = *t_j - *t_i;
         if dt < F::from(0) {
             return Err(SolvingError::from("Time steps need to be increasing"));
@@ -141,7 +142,9 @@ where
     let mut y_res = vec![y0.clone()];
 
     let mut dt: F;
-    for (t_i, t_j) in t_series.into_iter().tuple_windows::<(_,_)>() {
+    let mut t_further = t_series.into_iter();
+    t_further.next();
+    for (t_i, t_j) in t_series.into_iter().zip(t_further) {
         dt = *t_j - *t_i;
         if dt < F::from(0) {
             return Err(SolvingError::from("Time steps need to be increasing"));
