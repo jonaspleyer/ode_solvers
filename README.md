@@ -1,5 +1,5 @@
 <div align="center">
-    <img alt="ode_integrate" src="doc/logo2.svg" width="320"/>
+    <img alt="ode_integrate" src="doc/logo3.svg" width="320"/>
 </div>
 <br/>
 
