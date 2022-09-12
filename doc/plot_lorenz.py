@@ -60,15 +60,8 @@ if __name__ == "__main__":
     ax.set_xlim(x.min(), x.max())
     ax.set_ylim(y.min(), y.max())
     
-    
     ax.axis('off')
 
-    # boxstyle=square with pad=0, i.e. bbox itself.
-    rect = plt.Rectangle(
-        # (lower-left corner), width, height
-        (0.01, 0.01), 0.98, 0.98, fill=False, color="k", lw=2, 
-        zorder=1000, transform=fig.transFigure, figure=fig
-    )
     bb = mtransforms.Bbox([[0, 0], [1, 1]])
     p_bbox = FancyBboxPatch((bb.xmin, bb.ymin),
         abs(bb.width), abs(bb.height),
@@ -76,6 +69,5 @@ if __name__ == "__main__":
         ec="k", zorder=0., transform=fig.transFigure, fill=True, facecolor="#31688e"
     )
     ax.add_patch(p_bbox)
-    # fig.patches.extend([rect])
-
+    
     fig.savefig("lorenz.svg", transparent=True)
