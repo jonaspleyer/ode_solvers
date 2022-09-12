@@ -23,6 +23,9 @@ name = "nalgebra"
 [[example]]
 name = "arrayfire"
 
+[[example]]
+name = "complex_f32"
+
 
 [package.metadata.docs.rs]
 rustdoc-args = [ "--html-in-header", "./doc/docs-header.html" ]
