@@ -37,9 +37,11 @@ if __name__ == "__main__":
     # Solve the ODE
     res = odeint(lorenz_rhs, y, t_series, args=(p,))
 
+    # Transform the results such that they can be used in a linecollection
     x = res[:,0]
     y = res[:,2]
     dydx = t_series
+
     # Get segments from result
     segments = get_segments(x, y)
 
@@ -57,11 +59,14 @@ if __name__ == "__main__":
     
     line = ax.add_collection(lc)
 
+    # Set dimensions of plot
     ax.set_xlim(x.min(), x.max())
     ax.set_ylim(y.min(), y.max())
     
+    # Disable axis
     ax.axis('off')
 
+    # Create the blue box under the plot
     bb = mtransforms.Bbox([[0, 0], [1, 1]])
     p_bbox = FancyBboxPatch((bb.xmin, bb.ymin),
         abs(bb.width), abs(bb.height),
@@ -70,4 +75,14 @@ if __name__ == "__main__":
     )
     ax.add_patch(p_bbox)
     
+    # Save the figure to svg file
     fig.savefig("lorenz.svg", transparent=True)
+
+    # Open file and delete lines responsible for wrongly clipping the image
+    with open(r"lorenz.svg", 'r') as fp:
+        lines = fp.readlines()
+
+    with open(r"lorenz.svg", 'w') as fp:
+        for i, line in enumerate(lines[:-6]):
+            fp.write(line)
+        fp.write("</svg>\n")
