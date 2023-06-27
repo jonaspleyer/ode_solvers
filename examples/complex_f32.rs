@@ -7,14 +7,11 @@ use ode_integrate::prelude::*;
 
 type C1 = num::complex::Complex<f32>;
 
-
 // Defines the RHS of the ODE
-fn rhs_complex_f32(x: &C1, dx: &mut C1, _t: &f32, p: &f32) -> Result<(), CalcError>
-{
-    *dx = - p * *x;
+fn rhs_complex_f32(x: &C1, dx: &mut C1, _t: &f32, p: &f32) -> Result<(), CalcError> {
+    *dx = -p * *x;
     Ok(())
 }
-
 
 fn main() {
     // Define initial values of ODE
@@ -23,7 +20,9 @@ fn main() {
 
     // Define solving times and minilal time-step
     let dt: f32 = 0.1;
-    let t_series = [0.0, 0.01, 0.02, 0.03, 0.1, 0.3, 2.0, 2.1, 2.2, 4.0, 4.1, 4.2];
+    let t_series = [
+        0.0, 0.01, 0.02, 0.03, 0.1, 0.3, 2.0, 2.1, 2.2, 4.0, 4.1, 4.2,
+    ];
 
     // Solve equation and print if successful
     match solve_ode_time_series_minimal_step_add(&x0, &t_series, &rhs_complex_f32, &p, Rk4, &dt) {

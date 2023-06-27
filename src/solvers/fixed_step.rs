@@ -3,10 +3,10 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-use crate::concepts::steppers::*;
 use crate::concepts::ode_def::*;
+use crate::concepts::steppers::*;
 
-use std::ops::{Mul};
+use core::ops::Mul;
 
 pub enum FixedStepSolvers {
     Euler,
@@ -33,25 +33,15 @@ where
 {
     fn from(input: OdeDefinition<'a, I, F, P, Err>) -> Euler<'a, I, F, P, Err> {
         let dy = input.y0.clone();
-        Euler {
-            ode_def: input,
-            dy,
-        }
+        Euler { ode_def: input, dy }
     }
 }
 
 impl<'a, I, F, P, Err> Stepper<I, F, P, Err> for Euler<'a, I, F, P, Err> {
-    fn do_step_iter
-    (
-        &mut self,
-        y:  &mut I,
-        t:  &F,
-        dt: &F,
-        p:  &P
-    ) -> Result<(), Err>
+    fn do_step_iter(&mut self, y: &mut I, t: &F, dt: &F, p: &P) -> Result<(), Err>
     where
-        for<'m>&'m mut I: IntoIterator<Item=&'m mut F>,
-        for<'m>&'m I: IntoIterator<Item=&'m F>,
+        for<'m> &'m mut I: IntoIterator<Item = &'m mut F>,
+        for<'m> &'m I: IntoIterator<Item = &'m F>,
         F: FloatLikeType,
     {
         (self.ode_def.func)(y, &mut self.dy, t, p)?;
@@ -61,17 +51,10 @@ impl<'a, I, F, P, Err> Stepper<I, F, P, Err> for Euler<'a, I, F, P, Err> {
         Ok(())
     }
 
-    fn do_step_add
-    (
-        &mut self,
-        y:  &mut I,
-        t:  &F,
-        dt: &F,
-        p:  &P
-    ) -> Result<(), Err>
+    fn do_step_add(&mut self, y: &mut I, t: &F, dt: &F, p: &P) -> Result<(), Err>
     where
         I: MathVecLikeType<F>,
-        F: FloatLikeType + Mul<I,Output=I>,
+        F: FloatLikeType + Mul<I, Output = I>,
     {
         (self.ode_def.func)(y, &mut self.dy, t, p)?;
         *y += *dt * self.dy.clone();
@@ -105,7 +88,7 @@ pub struct Rk4<'a, I, F, P, Err> {
     ym: I,
 }
 
-/// Create a Rk4 stepper from a 
+/// Create a Rk4 stepper from a
 impl<'a, I, F, P, Err> From<OdeDefinition<'a, I, F, P, Err>> for Rk4<'a, I, F, P, Err>
 where
     I: Clone,
@@ -128,17 +111,10 @@ where
 
 // Implement the Rk4 stepper
 impl<'a, I, F, P, Err> Stepper<I, F, P, Err> for Rk4<'a, I, F, P, Err> {
-    fn do_step_iter
-    (
-        &mut self,
-        y:  &mut I,
-        t:  &F,
-        dt: &F,
-        p:  &P
-    ) -> Result<(), Err>
+    fn do_step_iter(&mut self, y: &mut I, t: &F, dt: &F, p: &P) -> Result<(), Err>
     where
-        for<'m>&'m mut I: IntoIterator<Item=&'m mut F>,
-        for<'m>&'m I: IntoIterator<Item=&'m F>,
+        for<'m> &'m mut I: IntoIterator<Item = &'m mut F>,
+        for<'m> &'m I: IntoIterator<Item = &'m F>,
         F: FloatLikeType,
     {
         (self.ode_def.func)(y, &mut self.dy, t, p)?;
@@ -150,19 +126,12 @@ impl<'a, I, F, P, Err> Stepper<I, F, P, Err> for Rk4<'a, I, F, P, Err> {
         Ok(())
     }
 
-    fn do_step_add
-    (
-        &mut self,
-        y:  &mut I,
-        t:  &F,
-        dt: &F,
-        p:  &P
-    ) -> Result<(), Err>
+    fn do_step_add(&mut self, y: &mut I, t: &F, dt: &F, p: &P) -> Result<(), Err>
     where
         I: MathVecLikeType<F>,
-        F: FloatLikeType + Mul<I,Output=I>,
+        F: FloatLikeType + Mul<I, Output = I>,
     {
-        let half = F::from(1)/F::from(2);
+        let half = F::from(1) / F::from(2);
 
         (self.ode_def.func)(y, &mut self.dy, t, p)?;
         // TODO
@@ -177,7 +146,11 @@ impl<'a, I, F, P, Err> Stepper<I, F, P, Err> for Rk4<'a, I, F, P, Err> {
         self.ym = y.clone() + self.k3.clone();
         (self.ode_def.func)(&self.ym, &mut self.dy, &(*t + *dt), p)?;
         self.k4 = *dt * self.dy.clone();
-        *y += half / F::from(3) * (self.k1.clone() + F::from(2) * self.k2.clone() + F::from(2) * self.k3.clone() + self.k4.clone());
+        *y += half / F::from(3)
+            * (self.k1.clone()
+                + F::from(2) * self.k2.clone()
+                + F::from(2) * self.k3.clone()
+                + self.k4.clone());
         Ok(())
     }
 }

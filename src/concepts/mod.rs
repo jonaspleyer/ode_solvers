@@ -3,10 +3,10 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-/// # Stepper Traits
-/// Contains traits defining solving algorithms and utility objects.
-pub mod steppers;
 /// # Error Types
 pub mod errors;
 /// # Types and Traits to define a ODE
 pub mod ode_def;
+/// # Stepper Traits
+/// Contains traits defining solving algorithms and utility objects.
+pub mod steppers;

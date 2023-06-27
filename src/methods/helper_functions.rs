@@ -3,15 +3,15 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-use crate::solvers::fixed_step::*;
-use crate::concepts::steppers::*;
 use crate::concepts::ode_def::*;
+use crate::concepts::steppers::*;
+use crate::solvers::fixed_step::*;
 
+use alloc::boxed::Box;
 
 /// # Initializes fixed size stepper from argument
 /// Helper function to obtain a Stepper Trait Object from the enum of steppers
-pub fn get_fixed_step_stepper<'a, I, F, P, E>
-(
+pub fn get_fixed_step_stepper<'a, I, F, P, E>(
     solver_type: FixedStepSolvers,
     ode_def: OdeDefinition<'a, I, F, P, E>,
 ) -> Box<dyn Stepper<I, F, P, E> + 'a>

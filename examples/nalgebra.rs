@@ -3,21 +3,24 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-use nalgebra::{Vector3,Rotation3};
+use nalgebra::{Rotation3, Vector3};
 
 use ode_integrate::prelude::*;
 
-
 // Defines the RHS of the ODE
-fn rhs(y: &Vector3<f64>, dy: &mut Vector3<f64>, _t: &f64, p: &Rotation3<f64>) -> Result<(), CalcError> {
+fn rhs(
+    y: &Vector3<f64>,
+    dy: &mut Vector3<f64>,
+    _t: &f64,
+    p: &Rotation3<f64>,
+) -> Result<(), CalcError> {
     *dy = p * y;
     Ok(())
 }
 
-
 fn main() {
     // Define initial values of ODE
-    let y0 = Vector3::from([1.0 ,2.0, 3.0]);
+    let y0 = Vector3::from([1.0, 2.0, 3.0]);
 
     // Define parameters for the ODE
     let axis = Vector3::x_axis();
@@ -43,7 +46,7 @@ fn main() {
             for yi in y_res {
                 println!("{}", yi);
             }
-        },
+        }
         Err(e) => println!("{e}"),
     }
 }

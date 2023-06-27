@@ -25,27 +25,27 @@ use alloc::{vec::Vec,vec};
 /// Afterwards integrate the ODE and display results.
 /// ```
 /// use ode_integrate::prelude::*;
-/// 
+///
 /// fn rhs_arr(y: &[f64; 3], dy: &mut [f64; 3], _t: &f64, p: &f64) -> Result<(), CalcError> {
 ///     dy[0] = -p * y[0];
 ///     dy[1] = -p * y[1];
 ///     dy[2] = -p * y[2];
 ///     Ok(())
 /// }
-/// 
+///
 /// // Define initial values and parameters for the ODE
 /// let y0 = [1.0 ,2.0, 3.0];
 /// let p = 2.0;
-/// 
+///
 /// // Define the time series on which to solve the ODE
 /// let mut t_series = Vec::<f64>::new();
 /// for n in 0..50 {
 ///     t_series.push(n as f64 * 0.01);
 /// }
-/// 
+///
 /// // Actually numerically integrate the ODE
 /// let res = solve_ode_time_series_single_step_iter(&y0, &t_series, &rhs_arr, &p, Rk4);
-/// 
+///
 /// // Check if solving was successfull and print if so
 /// match res {
 ///     Ok(y_res) => {
@@ -60,21 +60,21 @@ use alloc::{vec::Vec,vec};
 /// ```
 // TODO find way to specify the solver. This should be a common interface.
 // TODO add function for additive object
-pub fn solve_ode_time_series_single_step_iter<'a, I, F, P, E, V> (
+pub fn solve_ode_time_series_single_step_iter<'a, I, F, P, E, V>(
     y0: &I,
     t_series: &V,
     rhs: RHS<'a, I, F, P, E>,
     p: &P,
-    solver_type: FixedStepSolvers
+    solver_type: FixedStepSolvers,
 ) -> Result<Vec<I>, SolvingError>
 where
-    for<'m>&'m mut I: IntoIterator<Item=&'m mut F>,
-    for<'m>&'m I: IntoIterator<Item=&'m F>,
+    for<'m> &'m mut I: IntoIterator<Item = &'m mut F>,
+    for<'m> &'m I: IntoIterator<Item = &'m F>,
     I: Clone,
     F: FloatLikeType,
     P: Clone,
-    for<'m>&'m V: IntoIterator<Item=&'m F>,
     E: Display + Clone,
+    for<'m> &'m V: IntoIterator<Item = &'m F>,
 {
     let t_i = t_series.into_iter().next();
     let t0 = match t_i {
@@ -86,7 +86,7 @@ where
         t0: *t0,
         func: rhs,
     };
-    
+
     let mut stepper = get_fixed_step_stepper(solver_type, ode_def);
     let mut y = y0.clone();
 
@@ -111,20 +111,19 @@ where
     Ok(y_res)
 }
 
-
-pub fn solve_ode_time_series_single_step_add<'a, I, F, P, E, V> (
+pub fn solve_ode_time_series_single_step_add<'a, I, F, P, E, V>(
     y0: &I,
     t_series: &V,
     rhs: RHS<'a, I, F, P, E>,
     p: &P,
-    solver_type: FixedStepSolvers
+    solver_type: FixedStepSolvers,
 ) -> Result<Vec<I>, SolvingError>
 where
     I: MathVecLikeType<F>,
-    F: FloatLikeType + Mul<I,Output=I>,
+    F: FloatLikeType + Mul<I, Output = I>,
     P: Clone,
-    for<'m>&'m V: IntoIterator<Item=&'m F>,
     E: Display + Clone,
+    for<'m> &'m V: IntoIterator<Item = &'m F>,
 {
     let t_i = t_series.into_iter().next();
     let t0 = match t_i {
@@ -136,7 +135,7 @@ where
         t0: *t0,
         func: rhs,
     };
-    
+
     let mut stepper = get_fixed_step_stepper(solver_type, ode_def);
     let mut y = y0.clone();
 
@@ -161,7 +160,6 @@ where
     Ok(y_res)
 }
 
-
 /// ## Example
 /// First we define the RHS of the ODE \\(f(y, t, p) = \dots\\).
 /// Then specify initial values \\(y_0\\), parameters \\(p\\), and time points \\(t_i\\).
@@ -169,27 +167,27 @@ where
 /// ```
 /// use ode_integrate::methods::time_series::*;
 /// use ode_integrate::prelude::*;
-/// 
+///
 /// fn rhs_arr(y: &[f64; 3], dy: &mut [f64; 3], _t: &f64, p: &f64) -> Result<(), CalcError> {
 ///     dy[0] = -p * y[0];
 ///     dy[1] = -p * y[1];
 ///     dy[2] = -p * y[2];
 ///     Ok(())
 /// }
-/// 
+///
 /// // Define initial values and parameters for the ODE
 /// let y0 = [1.0 ,2.0, 3.0];
 /// let p = 2.0;
-/// 
+///
 /// // Define the time series on which to solve the ODE
 /// let mut t_series = Vec::<f64>::new();
 /// for n in 0..50 {
 ///     t_series.push(n as f64 * 0.01);
 /// }
-/// 
+///
 /// // Actually numerically integrate the ODE
 /// let res = solve_ode_time_series_minimal_step_iter(&y0, &t_series, &rhs_arr, &p, Rk4, &0.004);
-/// 
+///
 /// // Check if solving was successfull and print if so
 /// match res {
 ///     Ok(y_res) => {
@@ -202,23 +200,22 @@ where
 ///     }
 /// }
 /// ```
-pub fn solve_ode_time_series_minimal_step_iter<'a, I, F, P, E, V>
-(
+pub fn solve_ode_time_series_minimal_step_iter<'a, I, F, P, E, V>(
     y0: &I,
     t_series: &V,
     rhs: RHS<'a, I, F, P, E>,
     p: &P,
     solver_type: FixedStepSolvers,
-    dt: &F
+    dt: &F,
 ) -> Result<Vec<I>, SolvingError>
 where
-    for<'m>&'m mut I: IntoIterator<Item=&'m mut F>,
-    for<'m>&'m I: IntoIterator<Item=&'m F>,
+    for<'m> &'m mut I: IntoIterator<Item = &'m mut F>,
+    for<'m> &'m I: IntoIterator<Item = &'m F>,
     I: Clone,
     F: FloatLikeType + core::fmt::Debug,
     P: Clone,
-    for<'m>&'m V: IntoIterator<Item=&'m F>,
     E: Display + Clone,
+    for<'m> &'m V: IntoIterator<Item = &'m F>,
 {
     let t_initial = t_series.into_iter().next();
     let t0 = match t_initial {
@@ -230,7 +227,7 @@ where
         t0: *t0,
         func: rhs,
     };
-    
+
     let mut stepper = get_fixed_step_stepper(solver_type, ode_def);
     let mut y = y0.clone();
 
@@ -264,22 +261,20 @@ where
     Ok(y_res)
 }
 
-
-pub fn solve_ode_time_series_minimal_step_add<'a, I, F, P, E, V>
-(
+pub fn solve_ode_time_series_minimal_step_add<'a, I, F, P, E, V>(
     y0: &I,
     t_series: &V,
     rhs: RHS<'a, I, F, P, E>,
     p: &P,
     solver_type: FixedStepSolvers,
-    dt: &F
+    dt: &F,
 ) -> Result<Vec<I>, SolvingError>
 where
     I: MathVecLikeType<F>,
-    F: FloatLikeType + Mul<I,Output=I>,
+    F: FloatLikeType + Mul<I, Output = I>,
     P: Clone,
-    for<'m>&'m V: IntoIterator<Item=&'m F>,
     E: Display + Clone,
+    for<'m> &'m V: IntoIterator<Item = &'m F>,
 {
     let t_initial = t_series.into_iter().next();
     let t0 = match t_initial {
@@ -291,7 +286,7 @@ where
         t0: *t0,
         func: rhs,
     };
-    
+
     let mut stepper = get_fixed_step_stepper(solver_type, ode_def);
     let mut y = y0.clone();
 
