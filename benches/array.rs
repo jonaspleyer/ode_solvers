@@ -3,15 +3,13 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-#![feature(test)]
-
-extern crate test;
+use criterion::BenchmarkId;
+use criterion::{criterion_group, criterion_main, Criterion};
 
 use ode_integrate::concepts::errors::CalcError;
 use ode_integrate::concepts::ode_def::OdeDefinition;
-use ode_integrate::solvers::fixed_step::*;
 use ode_integrate::methods::helper_functions::*;
-
+use ode_integrate::solvers::fixed_step::*;
 
 #[macro_export]
 macro_rules! bench_array {
@@ -20,164 +18,86 @@ macro_rules! bench_array {
 
         pub fn rhs_arr(y: &A, dy: &mut A, _t: &f64, p: &f64) -> Result<(), CalcError> {
             for (yi, dyi) in y.iter().zip(dy) {
-                *dyi = - p * *yi;
+                *dyi = -p * *yi;
             }
             Ok(())
         }
 
-        {
-            let mut y = [0.0f64; $n];
-            for i in (1..$n) {
-                y[i] = i as f64;
-            }
+        let mut y = [0.0f64; $n];
+        for i in (1..$n) {
+            y[i] = i as f64;
+        }
 
-            let p = 2.0;
-            
-            let dt = 0.1;
-            let mut t = 0.0;
-            let ode_def = OdeDefinition { y0: y, t0: t, func: &rhs_arr };
+        let p = 2.0;
 
-            let mut s = get_fixed_step_stepper($s, ode_def);
+        let dt = 0.1;
+        let mut t = 0.0;
+        let ode_def = OdeDefinition {
+            y0: y,
+            t0: t,
+            func: &rhs_arr,
+        };
 
-            for _ in 1..$it {
-                s.do_step_iter(&mut y, &t, &dt, &p).unwrap();
-                t += dt;
-            }
+        let mut s = get_fixed_step_stepper($s, ode_def);
+
+        for _ in 1..$it {
+            s.do_step_iter(&mut y, &t, &dt, &p).unwrap();
+            t += dt;
         }
     };
 }
 
+#[macro_export]
+macro_rules! bench_many_arrays {
+    ($group: expr, $iter_range: expr, $solver: expr, $size:expr) => {
+        for (index, iter) in $iter_range.enumerate() {
+            let id = BenchmarkId::new(format!("size_{:06.0}_iter_{:06.0}", $size, iter), index);
+            $group.bench_with_input(id, &($size, iter),
+                |b, _| {
+                    b.iter(|| {
+                        bench_array!($size, iter, $solver);
+                    })
+                });
+        }
+    };
 
-#[cfg(test)]
-mod bench_euler {
-    use super::*;
-    use test::Bencher;
-
-    #[bench]
-    #[allow(non_snake_case)]
-    fn array_size______1_iter____100(b: &mut Bencher) {
-        b.iter(|| {bench_array!(1,100,FixedStepSolvers::Euler); });
-    }
-
-    #[bench]
-    #[allow(non_snake_case)]
-    fn array_size_____10_iter____100(b: &mut Bencher) {
-        b.iter(|| {bench_array!(10,100,FixedStepSolvers::Euler); });
-    }
-
-    #[bench]
-    #[allow(non_snake_case)]
-    fn array_size____100_iter____100(b: &mut Bencher) {
-        b.iter(|| {bench_array!(100,100,FixedStepSolvers::Euler); });
-    }
-
-    #[bench]
-    #[allow(non_snake_case)]
-    fn array_size___1000_iter____100(b: &mut Bencher) {
-        b.iter(|| {bench_array!(1000,100,FixedStepSolvers::Euler); });
-    }
-
-    #[bench]
-    #[allow(non_snake_case)]
-    fn array_size__10000_iter____100(b: &mut Bencher) {
-        b.iter(|| {bench_array!(10000,100,FixedStepSolvers::Euler); });
-    }
-
-    #[bench]
-    #[allow(non_snake_case)]
-    fn array_size_100000_iter____100(b: &mut Bencher) {
-        b.iter(|| {bench_array!(100000,100,FixedStepSolvers::Euler); });
-    }
-
-    #[bench]
-    #[allow(non_snake_case)]
-    fn array_size____100_iter_____10(b: &mut Bencher) {
-        b.iter(|| {bench_array!(100,10,FixedStepSolvers::Euler); });
-    }
-
-    #[bench]
-    #[allow(non_snake_case)]
-    fn array_size____100_iter___1000(b: &mut Bencher) {
-        b.iter(|| {bench_array!(100,1000,FixedStepSolvers::Euler); });
-    }
-
-    #[bench]
-    #[allow(non_snake_case)]
-    fn array_size____100_iter__10000(b: &mut Bencher) {
-        b.iter(|| {bench_array!(100,10000,FixedStepSolvers::Euler); });
-    }
-
-    #[bench]
-    #[allow(non_snake_case)]
-    fn array_size____100_iter_100000(b: &mut Bencher) {
-        b.iter(|| {bench_array!(100,100000,FixedStepSolvers::Euler); });
-    }
+    ($group: expr, $iter_range: expr, $solver: expr, $size:expr, $($sizes:expr),+) => {{
+        bench_many_arrays!($group, $iter_range.clone(), $solver, $size);
+        bench_many_arrays!($group, $iter_range, $solver, $($sizes),+);
+    }};
 }
 
+fn bench_euler(c: &mut Criterion) {
+    let mut group = c.benchmark_group("array_bench_euler");
+    let comb_iter = (0..5).map(|i| 10_i32.pow(i));
 
-#[cfg(test)]
-#[allow(non_snake_case)]
-mod bench___rk4 {
-    use super::*;
-    use test::Bencher;
-
-    #[bench]
-    #[allow(non_snake_case)]
-    fn array_size______1_iter____100(b: &mut Bencher) {
-        b.iter(|| {bench_array!(1,100,FixedStepSolvers::Rk4); });
-    }
-
-    #[bench]
-    #[allow(non_snake_case)]
-    fn array_size_____10_iter____100(b: &mut Bencher) {
-        b.iter(|| {bench_array!(10,100,FixedStepSolvers::Rk4); });
-    }
-
-    #[bench]
-    #[allow(non_snake_case)]
-    fn array_size____100_iter____100(b: &mut Bencher) {
-        b.iter(|| {bench_array!(100,100,FixedStepSolvers::Rk4); });
-    }
-
-    #[bench]
-    #[allow(non_snake_case)]
-    fn array_size___1000_iter____100(b: &mut Bencher) {
-        b.iter(|| {bench_array!(1000,100,FixedStepSolvers::Rk4); });
-    }
-
-    #[bench]
-    #[allow(non_snake_case)]
-    fn array_size__10000_iter____100(b: &mut Bencher) {
-        b.iter(|| {bench_array!(10000,100,FixedStepSolvers::Rk4); });
-    }
-
-    #[bench]
-    #[allow(non_snake_case)]
-    fn array_size_100000_iter____100(b: &mut Bencher) {
-        b.iter(|| {bench_array!(100000,100,FixedStepSolvers::Rk4); });
-    }
-
-    #[bench]
-    #[allow(non_snake_case)]
-    fn array_size____100_iter_____10(b: &mut Bencher) {
-        b.iter(|| {bench_array!(100,10,FixedStepSolvers::Rk4); });
-    }
-
-    #[bench]
-    #[allow(non_snake_case)]
-    fn array_size____100_iter___1000(b: &mut Bencher) {
-        b.iter(|| {bench_array!(100,1000,FixedStepSolvers::Rk4); });
-    }
-
-    #[bench]
-    #[allow(non_snake_case)]
-    fn array_size____100_iter__10000(b: &mut Bencher) {
-        b.iter(|| {bench_array!(100,10000,FixedStepSolvers::Rk4); });
-    }
-
-    #[bench]
-    #[allow(non_snake_case)]
-    fn array_size____100_iter_100000(b: &mut Bencher) {
-        b.iter(|| {bench_array!(100,100000,FixedStepSolvers::Rk4); });
-    }
+    bench_many_arrays!(
+        group,
+        comb_iter,
+        FixedStepSolvers::Euler,
+        10,
+        100,
+        1000,
+        10000
+    );
+    group.finish();
 }
+
+fn bench_rk4(c: &mut Criterion) {
+    let mut group = c.benchmark_group("array_bench_rk4");
+    let comb_iter = (1..6).map(|i| 10_i32.pow(i));
+
+    bench_many_arrays!(
+        group,
+        comb_iter,
+        FixedStepSolvers::Rk4,
+        10,
+        100,
+        1000,
+        10000
+    );
+    group.finish();
+}
+
+criterion_group!(benches, bench_euler, bench_rk4);
+criterion_main!(benches);

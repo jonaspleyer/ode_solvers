@@ -26,6 +26,10 @@ name = "arrayfire"
 [[example]]
 name = "complex_f32"
 
+[[bench]]
+name = "array"
+harness = false
+
 
 [package.metadata.docs.rs]
 rustdoc-args = [ "--html-in-header", "./doc/docs-header.html" ]
@@ -42,3 +46,4 @@ arrayfire = { version="3.8" }
 approx = { version="0.5" }
 f128 = { version="0.2" }
 half = { version="2.1" }
+criterion = { version="0.4" }
