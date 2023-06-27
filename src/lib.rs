@@ -1,3 +1,5 @@
+#![no_std]
+
 // Copyright: Jonas Pleyer
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -12,6 +14,8 @@
 //! 
 //! ODEs are accepted in the following form:
 //! *f(y, dy, t, p)*
+
+extern crate alloc;
 
 /// # Abstract Concepts
 /// Contains Traits and objects common to every ODE problem.

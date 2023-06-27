@@ -9,10 +9,7 @@ use crate::concepts::ode_def::*;
 use crate::concepts::errors::CalcError;
 use crate::methods::helper_functions::*;
 
-
-use f128::f128;
-use half::f16;
-
+use alloc::vec::Vec;
 
 enum Operations {
     Add,
@@ -107,6 +104,8 @@ macro_rules! do_step {
 // TODO can we somehow automate this mess? We only want to iterate over all combinations.
 mod euler {
     use super::*;
+    use f128::f128;
+    use half::f16;
 
     #[test]
     fn add_good_f128() {
@@ -197,9 +196,10 @@ mod euler {
     }
 }
 
-
 mod rk4 {
     use super::*;
+    use f128::f128;
+    use half::f16;
 
     #[test]
     fn add_good_f128() {

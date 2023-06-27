@@ -55,7 +55,7 @@ impl<'a, I, F, P, Err> Stepper<I, F, P, Err> for Euler<'a, I, F, P, Err> {
         F: FloatLikeType,
     {
         (self.ode_def.func)(y, &mut self.dy, t, p)?;
-        for (yi, dyi) in y.into_iter().zip(self.dy.into_iter()) {
+        for (mut yi, dyi) in y.into_iter().zip(self.dy.into_iter()) {
             *yi += *dt * *dyi;
         }
         Ok(())
@@ -142,7 +142,7 @@ impl<'a, I, F, P, Err> Stepper<I, F, P, Err> for Rk4<'a, I, F, P, Err> {
         F: FloatLikeType,
     {
         (self.ode_def.func)(y, &mut self.dy, t, p)?;
-        for (yi, dyi) in y.into_iter().zip(self.dy.into_iter()) {
+        for (mut yi, dyi) in y.into_iter().zip(self.dy.into_iter()) {
             // TODO
             // This is not a Runge-Kutta solver yet!
             *yi += *dt * *dyi;

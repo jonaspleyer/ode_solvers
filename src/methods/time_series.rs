@@ -3,12 +3,15 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-use crate::solvers::fixed_step::*;
+use core::fmt::Debug;
+use core::fmt::Display;
+
 use crate::concepts::errors::*;
 use crate::concepts::ode_def::*;
 use crate::methods::helper_functions::*;
+use crate::solvers::fixed_step::*;
 
-use std::error::Error;
+use alloc::{vec::Vec,vec};
 
 /// # Solve ODE for specified time points and single steps in between
 /// Solves a ODE supplied via initial parameters and RHS function
@@ -70,8 +73,8 @@ where
     I: Clone,
     F: FloatLikeType,
     P: Clone,
-    E: Error + Clone,
     for<'m>&'m V: IntoIterator<Item=&'m F>,
+    E: Display + Clone,
 {
     let t_i = t_series.into_iter().next();
     let t0 = match t_i {
@@ -101,7 +104,7 @@ where
         }
         match stepper.do_step_iter(&mut y, t_i, &dt, p) {
             Ok(()) => (),
-            Err(error) => return Err(SolvingError::from(format!("{error} {:?}",error))),
+            Err(error) => return Err(SolvingError::from(alloc::format!("{error}"))),
         }
         y_res.push(y.clone());
     }
@@ -120,8 +123,8 @@ where
     I: MathVecLikeType<F>,
     F: FloatLikeType + Mul<I,Output=I>,
     P: Clone,
-    E: Error + Clone,
     for<'m>&'m V: IntoIterator<Item=&'m F>,
+    E: Display + Clone,
 {
     let t_i = t_series.into_iter().next();
     let t0 = match t_i {
@@ -151,7 +154,7 @@ where
         }
         match stepper.do_step_add(&mut y, t_i, &dt, p) {
             Ok(()) => (),
-            Err(error) => return Err(SolvingError::from(format!("{error} {:?}",error))),
+            Err(error) => return Err(SolvingError::from(alloc::format!("{error}"))),
         }
         y_res.push(y.clone());
     }
@@ -212,10 +215,10 @@ where
     for<'m>&'m mut I: IntoIterator<Item=&'m mut F>,
     for<'m>&'m I: IntoIterator<Item=&'m F>,
     I: Clone,
-    F: FloatLikeType + std::fmt::Debug,
+    F: FloatLikeType + core::fmt::Debug,
     P: Clone,
-    E: Error + Clone,
     for<'m>&'m V: IntoIterator<Item=&'m F>,
+    E: Display + Clone,
 {
     let t_initial = t_series.into_iter().next();
     let t0 = match t_initial {
@@ -252,7 +255,7 @@ where
             // Do step and save
             match stepper.do_step_iter(&mut y, &t, &dt, p) {
                 Ok(()) => (),
-                Err(error) => return Err(SolvingError::from(format!("{error} {:?}",error))),
+                Err(error) => return Err(SolvingError::from(alloc::format!("{error}"))),
             }
             t += dtau;
         }
@@ -275,8 +278,8 @@ where
     I: MathVecLikeType<F>,
     F: FloatLikeType + Mul<I,Output=I>,
     P: Clone,
-    E: Error + Clone,
     for<'m>&'m V: IntoIterator<Item=&'m F>,
+    E: Display + Clone,
 {
     let t_initial = t_series.into_iter().next();
     let t0 = match t_initial {
@@ -313,7 +316,7 @@ where
             // Do step and save
             match stepper.do_step_add(&mut y, &t, &dt, p) {
                 Ok(()) => (),
-                Err(error) => return Err(SolvingError::from(format!("{error} {:?}",error))),
+                Err(error) => return Err(SolvingError::from(alloc::format!("{error}"))),
             }
             t += dtau;
         }

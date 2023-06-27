@@ -14,7 +14,7 @@ edition = "2021"
 readme = "README.md"
 repository = "https://github.com/jonaspleyer/ode_integrate"
 keywords=["ODE", "Ordinary", "Differential", "Equation", "science"]
-categories=["science", "mathematics"]
+categories=["science", "mathematics", "no-std"]
 autoexamples = false
 
 [[example]]
