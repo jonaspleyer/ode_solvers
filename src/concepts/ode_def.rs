@@ -64,6 +64,22 @@ pub type RHS<'a, I, F, P, Err> = &'a dyn Fn(&I, &mut I, &F, &P) -> Result<(), Er
 ///     y(t_0) &= y_0
 /// \end{align}
 /// meaning by the right-hand side of the first equation and initial values
+/// ```
+/// use ode_integrate::concepts::errors::CalcError;
+/// use ode_integrate::concepts::ode_def::OdeDefinition;
+///
+/// fn rhs(y: &Vec<f64>, dy: &mut Vec<f64>, t: &f64, p: &[f64; 2]) -> Result<(), CalcError> {
+///     for (yi, dyi) in y.iter().zip(dy.iter_mut()) {
+///         *dyi = p[0] - p[1] * (-t).exp() * yi;
+///     }
+///     Ok(())
+/// }
+///
+///
+/// let y0 = vec![1.0, 3.3, 84.4];
+/// let t0 = 2.0;
+/// let ode_def = OdeDefinition { y0, t0, func: &rhs };
+/// ```
 #[derive(Clone)]
 pub struct OdeDefinition<'a, I, F, P, Err> {
     pub y0: I,
