@@ -10,7 +10,7 @@ use crate::concepts::ode_def::*;
 use crate::methods::helper_functions::*;
 use crate::solvers::fixed_step::*;
 
-use alloc::{vec::Vec,vec};
+use alloc::{vec, vec::Vec};
 
 /// # Solve ODE for specified time points and single steps in between
 /// Solves a ODE supplied via initial parameters and RHS function
