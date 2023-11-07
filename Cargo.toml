@@ -5,7 +5,6 @@ members = [
 ]
 
 [workspace.package]
-name = "ode_integrate"
 description="Collection of numerical ODE Solvers written in generics and thus applicable in many scenarios."
 authors = ["Jonas Pleyer <jonas.pleyer@fdm.uni-freiburg.de>"]
 version = "0.0.2"
