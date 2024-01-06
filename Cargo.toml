@@ -1,7 +1,6 @@
 [workspace]
 members = [
     "ode_integrate",
-    "ode_integrate-numpy",
 ]
 
 [workspace.package]
