@@ -1,7 +1,7 @@
 use std::ops::{Mul,Add,AddAssign};
 
 use ode_integrate::concepts::errors::CalcError;
-use ode_integrate::solvers::fixed_step::{Euler};
+use ode_integrate::solvers::fixed_step::Euler;
 use ode_integrate::concepts::steppers::Stepper;
 
 
