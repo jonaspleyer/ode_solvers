@@ -16,9 +16,6 @@ autoexamples = false
 name = "nalgebra"
 
 [[example]]
-name = "arrayfire"
-
-[[example]]
 name = "complex_f32"
 
 [[bench]]
@@ -32,7 +29,6 @@ harness = false
 ndarray = { version="0.15" }
 nalgebra = { version="0.31" }
 num = { version="0.4" }
-arrayfire = { version="3.8" }
 approx = { version="0.5" }
 f128 = { version="0.2" }
 half = { version="2.1" }
