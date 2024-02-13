@@ -6,7 +6,7 @@
 
 on: [push, pull_request]
 
-name: Test-Suite
+name: Test-Suite stable
 
 jobs:
   check:
@@ -34,18 +34,6 @@ jobs:
     steps:
       - name: Checkout sources
         uses: actions/checkout@v2
-
-      - name: Add GPG key
-        run: sudo apt-key adv --fetch-key https://repo.arrayfire.com/GPG-PUB-KEY-ARRAYFIRE-2020.PUB 
-        
-      - name: Include arrayfire repo
-        run: sudo echo "deb [arch=amd64] https://repo.arrayfire.com/debian all main" | sudo tee /etc/apt/sources.list.d/arrayfire.list
-
-      - name: Refresh repo information
-        run: sudo apt-get update
-        
-      - name: Install Arrayfire
-        run: sudo apt install -y gnupg ca-certificates apt software-properties-common arrayfire
 
       - name: Install stable toolchain
         uses: actions-rs/toolchain@v1
