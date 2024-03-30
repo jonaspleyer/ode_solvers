@@ -1,10 +1,12 @@
-use crate::concepts::ode_def::*;
-use crate::concepts::steppers::*;
+use crate::concepts::*;
 
 use core::ops::Mul;
 
+/// Contains all implementors of the [Stepper] trait for fixed step-sizes.
 pub enum FixedStepSolvers {
+    /// First-order Euler solver
     Euler,
+    /// 4th order Runge-Kutta Solver.
     Rk4,
 }
 

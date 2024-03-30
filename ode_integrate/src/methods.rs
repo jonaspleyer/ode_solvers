@@ -1,15 +1,15 @@
 use core::fmt::Display;
 
-use crate::concepts::errors::*;
-use crate::concepts::ode_def::*;
-use crate::methods::helper_functions::*;
-use crate::solvers::fixed_step::*;
+use crate::concepts::*;
+use crate::solvers::{Euler, FixedStepSolvers, Rk4};
 
 use alloc::{vec, vec::Vec};
+use alloc::boxed::Box;
 
 /// # Solve ODE for specified time points and single steps in between
 /// Solves a ODE supplied via initial parameters and RHS function
-/// for the given time points. It uses single steps in between meaning for time points \\(t_0,\dots,t_n\\),
+/// for the given time points. It uses single steps in between meaning for time points
+/// \\(t_0,\dots,t_n\\),
 /// the corresponding time intervals will be \\(\textrm{d}t_i = t_{i+1} - t_i\\).
 /// This means, the solving routine will do exactly \\(n\\) steps to obtain the results.
 
@@ -312,4 +312,23 @@ where
         y_res.push(y.clone());
     }
     Ok(y_res)
+}
+
+
+/// # Initializes fixed size stepper from argument
+/// Helper function to obtain a Stepper Trait Object from the enum of steppers
+pub fn get_fixed_step_stepper<'a, I, F, P, E>(
+    solver_type: FixedStepSolvers,
+    ode_def: OdeDefinition<'a, I, F, P, E>,
+) -> Box<dyn Stepper<I, F, P, E> + 'a>
+where
+    I: Clone,
+    F: FloatLikeType,
+    P: Clone,
+    E: Clone,
+{
+    match solver_type {
+        FixedStepSolvers::Euler => Box::new(Euler::from(ode_def)) as Box<dyn Stepper<I, F, P, E>>,
+        FixedStepSolvers::Rk4 => Box::new(Rk4::from(ode_def)) as Box<dyn Stepper<I, F, P, E>>,
+    }
 }

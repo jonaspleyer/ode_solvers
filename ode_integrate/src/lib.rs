@@ -13,19 +13,10 @@
 
 extern crate alloc;
 
-/// # Abstract Concepts
-/// Contains Traits and objects common to every ODE problem.
-pub mod concepts;
+mod concepts;
+mod solvers;
+mod methods;
 
-/// # Solving Algorithms
-/// Contains generic implementations of different solving algorithms.
-/// When supplied with concrete types, these can solve ODEs.
-pub mod solvers;
-
-/// # Quality of life Re-Exports
-/// Collection of functions and objects which should suffice to solve any ODE.
-pub mod prelude;
-
-/// # User Solving Functions
-/// These functions are meant to be called directly and many of them are reexported in the prelude file.
-pub mod methods;
+pub use concepts::*;
+pub use solvers::*;
+pub use methods::*;
