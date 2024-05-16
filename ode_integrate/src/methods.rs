@@ -4,8 +4,8 @@ use core::ops::Mul;
 use crate::concepts::*;
 use crate::solvers::{Euler, FixedStepSolvers, Rk4};
 
-use alloc::{vec, vec::Vec};
 use alloc::boxed::Box;
+use alloc::{vec, vec::Vec};
 
 /// # Solve ODE for specified time points and single steps in between
 /// Solves a ODE supplied via initial parameters and RHS function
@@ -19,7 +19,7 @@ use alloc::boxed::Box;
 /// Then specify initial values \\(y_0\\), parameters \\(p\\), and time points \\(t_i\\).
 /// Afterwards integrate the ODE and display results.
 /// ```
-/// use ode_integrate::prelude::*;
+/// use ode_integrate::*;
 ///
 /// fn rhs_arr(y: &[f64; 3], dy: &mut [f64; 3], _t: &f64, p: &f64) -> Result<(), CalcError> {
 ///     dy[0] = -p * y[0];
@@ -39,7 +39,8 @@ use alloc::boxed::Box;
 /// }
 ///
 /// // Actually numerically integrate the ODE
-/// let res = solve_ode_time_series_single_step_iter(&y0, &t_series, &rhs_arr, &p, Rk4);
+/// let res = solve_ode_time_series_single_step_iter(&y0, &t_series, &rhs_arr, &p,
+/// FixedStepSolvers::Rk4);
 ///
 /// // Check if solving was successfull and print if so
 /// match res {
@@ -160,8 +161,7 @@ where
 /// Then specify initial values \\(y_0\\), parameters \\(p\\), and time points \\(t_i\\).
 /// Afterwards integrate the ODE and display results.
 /// ```
-/// use ode_integrate::methods::time_series::*;
-/// use ode_integrate::prelude::*;
+/// use ode_integrate::*;
 ///
 /// fn rhs_arr(y: &[f64; 3], dy: &mut [f64; 3], _t: &f64, p: &f64) -> Result<(), CalcError> {
 ///     dy[0] = -p * y[0];
@@ -181,7 +181,8 @@ where
 /// }
 ///
 /// // Actually numerically integrate the ODE
-/// let res = solve_ode_time_series_minimal_step_iter(&y0, &t_series, &rhs_arr, &p, Rk4, &0.004);
+/// let res = solve_ode_time_series_minimal_step_iter(&y0, &t_series, &rhs_arr, &p,
+/// FixedStepSolvers::Rk4, &0.004);
 ///
 /// // Check if solving was successfull and print if so
 /// match res {
@@ -314,7 +315,6 @@ where
     }
     Ok(y_res)
 }
-
 
 /// # Initializes fixed size stepper from argument
 /// Helper function to obtain a Stepper Trait Object from the enum of steppers

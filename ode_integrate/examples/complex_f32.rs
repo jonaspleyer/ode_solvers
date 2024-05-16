@@ -1,4 +1,4 @@
-use ode_integrate::prelude::*;
+use ode_integrate::*;
 
 type C1 = num::complex::Complex<f32>;
 
@@ -20,7 +20,14 @@ fn main() {
     ];
 
     // Solve equation and print if successful
-    match solve_ode_time_series_minimal_step_add(&x0, &t_series, &rhs_complex_f32, &p, Rk4, &dt) {
+    match solve_ode_time_series_minimal_step_add(
+        &x0,
+        &t_series,
+        &rhs_complex_f32,
+        &p,
+        FixedStepSolvers::Rk4,
+        &dt,
+    ) {
         Ok(y_res) => {
             for (ti, yi) in t_series.iter().zip(y_res.iter()) {
                 println!("t={:6.4} y={:6.4}", ti, yi);

@@ -1,6 +1,6 @@
 use nalgebra::{Rotation3, Vector3};
 
-use ode_integrate::prelude::*;
+use ode_integrate::*;
 
 // Defines the RHS of the ODE
 fn rhs(
@@ -33,7 +33,8 @@ fn main() {
     }
 
     // Solve the ODE for the times defined
-    let res = solve_ode_time_series_single_step_iter(&y0, &t_series, &rhs, &p, Rk4);
+    let res =
+        solve_ode_time_series_single_step_iter(&y0, &t_series, &rhs, &p, FixedStepSolvers::Rk4);
 
     // Print output
     match res {

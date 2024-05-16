@@ -14,9 +14,9 @@
 extern crate alloc;
 
 mod concepts;
-mod solvers;
 mod methods;
+mod solvers;
 
 pub use concepts::*;
-pub use solvers::*;
 pub use methods::*;
+pub use solvers::*;

@@ -1,7 +1,4 @@
-use ode_integrate::concepts::errors::CalcError;
-use ode_integrate::concepts::ode_def::OdeDefinition;
-use ode_integrate::concepts::steppers::Stepper;
-use ode_integrate::solvers::fixed_step::Rk4;
+use ode_integrate::{CalcError, OdeDefinition, Rk4, Stepper};
 
 use approx::ulps_eq;
 

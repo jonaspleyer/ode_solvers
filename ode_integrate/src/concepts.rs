@@ -1,5 +1,5 @@
-use core::ops::{Add, AddAssign, Div, Mul, Neg, Sub, SubAssign};
 use core::fmt;
+use core::ops::{Add, AddAssign, Div, Mul, Neg, Sub, SubAssign};
 
 use alloc::string::String;
 
@@ -132,8 +132,7 @@ pub type RHS<'a, I, F, P, Err> = &'a dyn Fn(&I, &mut I, &F, &P) -> Result<(), Er
 /// \end{align}
 /// meaning by the right-hand side of the first equation and initial values
 /// ```
-/// use ode_integrate::concepts::errors::CalcError;
-/// use ode_integrate::concepts::ode_def::OdeDefinition;
+/// use ode_integrate::*;
 ///
 /// fn rhs(y: &Vec<f64>, dy: &mut Vec<f64>, t: &f64, p: &[f64; 2]) -> Result<(), CalcError> {
 ///     for (yi, dyi) in y.iter().zip(dy.iter_mut()) {
