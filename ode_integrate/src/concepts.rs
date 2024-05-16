@@ -149,8 +149,11 @@ pub type RHS<'a, I, F, P, Err> = &'a dyn Fn(&I, &mut I, &F, &P) -> Result<(), Er
 /// ```
 #[derive(Clone)]
 pub struct OdeDefinition<'a, I, F, P, Err> {
+    /// Initial value of the ODE
     pub y0: I,
+    /// Initial time point of the oDE
     pub t0: F,
+    /// Right-hand side function to determine the ODE
     pub func: RHS<'a, I, F, P, Err>,
 }
 
@@ -165,25 +168,30 @@ pub struct OdeDefinition<'a, I, F, P, Err> {
 /// copied/cloned and thus the ODE integrated this way.
 // TODO consider using slices instead of iterators https://users.rust-lang.org/t/solved-function-taking-slice-of-objects-as-well-as-slice-of-references-to-objects/13553/2
 pub trait Stepper<I, F, P, Err> {
+    /// Update components of an iterable type
     fn do_step_iter(&mut self, y: &mut I, t: &F, dt: &F, p: &P) -> Result<(), Err>
     where
         for<'m> &'m mut I: IntoIterator<Item = &'m mut F>,
         for<'m> &'m I: IntoIterator<Item = &'m F>,
         F: FloatLikeType;
 
+    /// Update a type which can be added via [Add](core::ops::Add).
     fn do_step_add(&mut self, y: &mut I, t: &F, dt: &F, p: &P) -> Result<(), Err>
     where
         I: MathVecLikeType<F>,
         F: FloatLikeType + Mul<I, Output = I>;
 }
 
+/// Similar to [Stepper] but individual functions return error estimates.
 pub trait AdaptiveStepper<I, F, P, Err> {
+    /// Similar to [Stepper::do_step_iter] but also returns an error approximation.
     fn do_step_iter(&mut self, y: &mut I, t: &F, dt: &F, p: &P) -> Result<Option<F>, Err>
     where
         for<'m> &'m mut I: IntoIterator<Item = &'m mut F>,
         for<'m> &'m I: IntoIterator<Item = &'m F>,
         F: FloatLikeType;
 
+    /// Similar to [Stepper::do_step_add] but also returns an error approximation.
     fn do_step_add(&mut self, y: &mut I, t: &F, dt: &F, p: &P) -> Result<Option<F>, Err>
     where
         I: MathVecLikeType<F>,
