@@ -1,4 +1,5 @@
 use core::fmt::Display;
+use core::ops::Mul;
 
 use crate::concepts::*;
 use crate::solvers::{Euler, FixedStepSolvers, Rk4};
